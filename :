@@ -1,0 +1,145 @@
+unit role DBO::Searchable;
+
+has $!filter  = {};
+has $!options = {};
+
+method search(%new-filter, %options?) {
+  my (%option, %filter); 
+  if $!filter.keys {
+    # TODO: need to merge these filters
+    %filter = %(%($!filter), %new-filter);
+  } else {
+    %filter = %new-filter;
+  }
+  if $!options.keys {
+    %option = %(%($!options), %options);
+  } else {
+    %option = %options;
+  }
+  my $clone = self.clone;
+  $clone!set-filter(%filter) if %new-filter;
+  $clone!set-options(%option) if %options;
+  $clone;
+}
+
+method !set-filter(%filter) {
+  $!filter = %filter;
+  self;
+}
+
+method !set-options(%options) {
+  $!options = %options;
+  self;
+}
+
+method dump-filter {
+  $!filter;
+}
+
+method dump-options {
+  $!options;
+}
+
+method all(%filter?) {
+  return self.search(%filter).all
+    if %filter;
+   
+}
+
+method sql($page-start?, $page-size?) {
+  my @*params;
+
+  my $sql = 'SELECT ';
+  $sql   ~= self!gen-field-sels~' ';
+  $sql   ~= self!gen-table;
+  $sql   ~= self!gen-joins;
+  $sql   ~= self!gen-filters if $!filter;
+
+  { sql => $sql, params => @*params };
+}
+
+method !gen-field-sels {
+  $!options<fields>.defined && $!options<fields>.keys
+    ?? $!options<fields>.map({ self!gen-id($_) }).join(', ')
+    !! '*';
+}
+
+method !gen-table {
+  'FROM '~(self.^can('table-name')
+    ?? self!gen-id(self.table-name)~' as self'
+    !! self!gen-id('dummy')~' as self');
+}
+
+method !gen-quote(\val, $force = False) {
+  say val, $force;
+  if val =:= val."{val.^name}"() {
+    # not a container
+    say ' here';
+    return self!gen-id(val);
+  } else {
+    push @*params, val;
+    return '?';
+  }
+}
+
+method !gen-id($value) {
+  my $qc = MY::<$!quote-char> // '"';
+  my $sc = MY::<$!separator-char> // '.';
+  my @s  = $value.split($sc);
+  "{$qc}{@s.join($qc~$sc~$qc)}{$qc}";
+}
+
+method !gen-pairs($kv, $type = 'AND', $force-placeholder = False, :$parent-key) {
+  my @pairs;
+  if $kv ~~ Hash {
+    for %($kv).pairs -> $x {
+      @pairs.push: '( '~self!gen-pairs($x.key eq ('-or'|'-and') ?? $x.value !! $x, $x.key eq ('-or'|'-and') ?? $x.key.uc.substr(1) !! $type, $force-placeholder, :$parent-key)~' )';
+    }
+  } elsif $kv ~~ Array {
+    for @($kv) -> $x {
+      @pairs.push: '( '~self!gen-pairs($x, $type, $force-placeholder, :$parent-key)~' )';
+    }
+  } elsif $kv ~~ Pair {
+    if $parent-key || $kv.value !~~ any(Hash|Array) {
+      'pair'.say;
+      $kv.say;
+      my ($key, $eq, $val);
+      $key = $parent-key // $kv.key;
+      $eq  = $parent-key && $kv ~~ Pair ?? $kv.key !! '=';
+      $val = $kv.value;
+      @pairs.push: self!gen-id($key)~" $eq "~self!gen-quote($val, $force-placeholder);
+    } else {
+      'rehash'.say;
+      $kv.value.perl.say;
+      @pairs.push: self!gen-pairs($kv.value.WHAT ~~ Array ?? @($kv.value) !! %($kv.value), $type, $force-placeholder, parent-key => $kv.key);
+    }
+  } 
+  @pairs.join(" $type ");
+}
+
+method !gen-filters {
+  ' FROM '~self!gen-pairs($!filter);
+}
+
+method !gen-join-str(Associative $attr where { $_<table>.defined && $_<on>.defined }) {
+  my $join = ' ';
+  $join   ~= $attr<type> ?? $attr<type> !! 'left outer';
+  $join   ~= ' join ';
+  $join   ~= self!gen-id($attr<table>);
+  $join   ~= ' as '~$attr<as>
+    if $attr<as>.defined;
+  $join   ~= ' on ';
+  $join   ~= self!gen-pairs($attr<on>);
+  $join;
+}
+
+method !gen-joins {
+  my $joins = '';
+  if $!options<join>.defined {
+    if $!options<join> ~~ Array {
+      $joins ~= self!gen-join-str($_) for @($!options<join>);
+    }
+    $joins ~= self!gen-join-str($!options<join>) if $!options<join> ~~ Associative;   
+  }
+  $joins;
+}
