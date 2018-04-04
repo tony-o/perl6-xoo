@@ -81,7 +81,7 @@ method count(%filter?) {
 }
 
 method update(%values, %filter?) {
-  return self.search(%filter).count
+  return self.search(%filter).update(%values)
     if %filter;
   die 'Please connect to a database first'
     unless self.^can('db');
@@ -90,7 +90,17 @@ method update(%values, %filter?) {
   $sth.execute(|%query<params>);
 }
 
-method sql($page-start?, $page-size?, :$field-override = Nil, :$update = False, :%update-values?) {
+method delete(%values, %filter?) {
+  return self.search(%filter).delete(%values)
+    if %filter;
+  die 'Please connect to a database first'
+    unless self.^can('db');
+  my %query = $.sql(:delete, :update-values(%values));
+  my $sth   = self.db.prepare(%query<sql>);
+  $sth.execute(|%query<params>);
+}
+
+method sql($page-start?, $page-size?, :$field-override = Nil, :$update = False, :%update-values?, :$delete = False) {
   my (@*params, $sql);
 
   if $update {
@@ -98,6 +108,11 @@ method sql($page-start?, $page-size?, :$field-override = Nil, :$update = False, 
     $sql ~= self!gen-table(:for-update);
     $sql ~= self!gen-update-values(%update-values); 
     $sql ~= self!gen-filters(key-table => self.table-name) if $!filter;
+  } elsif $delete {
+    $sql  = 'DELETE FROM ';
+    $sql ~= self!gen-table(:for-update);
+    $sql ~= self!gen-filters(key-table => self.table-name) if $!filter;
+    die $sql;
   } else {
     $sql = 'SELECT ';
     if $field-override {
