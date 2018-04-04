@@ -7,6 +7,8 @@ use Test;
 use DBO::Test;
 use DBIish;
 
+plan 11;
+
 configure-sqlite;
 
 my $cwd = $*CWD;
@@ -51,13 +53,12 @@ ok $cnt == 1, '.count for (txt like "% %") should be only 1';
 
 $hello.search({ txt => { 'not like' => '% %' }}).update({ txt => 'abc' });
 @rows = $hello.search.all;
-say '======================';
-say '| id  | txt          |';
-say '======================';
-for @rows -> $r {
-  say "| {$r.id}{' ' x 4 - $r.id.Str.chars}| {$r.txt}{' ' x 13-$r.txt.chars}|";
+$cnt  = { 'hello world' => 0, 'abc' => 0 };
+for @rows {
+  $cnt{$_.txt}++;
 }
-say '======================';
-say "\n";
+
+ok $cnt{'hello world'} == 1, 'did not update the only row containing a space';
+ok $cnt<abc> == @rows.elems - 1, 'updated all rows not containing a space';
 
 $*CWD = $cwd;

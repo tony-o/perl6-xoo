@@ -4,7 +4,9 @@ has $!filter  = {};
 has $!options = {};
 has $!inflate = True;
 
-method search(%new-filter, %options?) {
+method search(%new-filter?, %options?) {
+  return self
+    unless %new-filter.defined || %options.defined;
   my (%option, %filter); 
   if $!filter.keys {
     %filter = %(%($!filter), %new-filter);
@@ -84,7 +86,6 @@ method update(%values, %filter?) {
   die 'Please connect to a database first'
     unless self.^can('db');
   my %query = $.sql(:update, :update-values(%values));
-  warn %query<sql>;
   my $sth   = self.db.prepare(%query<sql>);
   $sth.execute(|%query<params>);
 }
@@ -113,7 +114,7 @@ method sql($page-start?, $page-size?, :$field-override = Nil, :$update = False, 
 }
 
 method !gen-update-values(%values) {
-  ' SET '~%values.keys.map({ self!gen-quote($_, :table(self.table-name))~' = '~self!gen-quote(%values{$_})}).join(', ');
+  ' SET '~%values.keys.map({ self!gen-quote($_, :table(''))~' = '~self!gen-quote(%values{$_})}).join(', ');
 }
 
 method !gen-field-sels {
@@ -143,7 +144,7 @@ method !gen-id($value,:$table?) {
   my $sc = MY::<$!quote><separator>  // '.';
   my @s  = $value.split($sc);
   @s.prepend($table)
-    if $table.defined && @s.elems == 1;
+    if $table.defined && $table ne '' && @s.elems == 1;
   "{$qc}{@s.join($qc~$sc~$qc)}{$qc}";
 }
 
