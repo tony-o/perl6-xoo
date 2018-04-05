@@ -8,13 +8,14 @@ has $.quote;
 has $!model-class;
 has $!driver;
 has $!row-class;
+has $!dbo;
 
 sub anon-row {
   my $cx = class :: does DBO::Row {};
   $cx;
 }
 
-submethod BUILD (:$!driver, :$!db, :$!quote) {
+submethod BUILD (:$!driver, :$!db, :$!quote, :$!dbo) {
   CATCH { default { .say; } }
   $!table-name = $table-name;
   $!quote      = $!driver eq 'mysql'
@@ -50,5 +51,9 @@ submethod BUILD (:$!driver, :$!db, :$!quote) {
 
 method table-name { $!table-name; }
 method db         { $!db; }
+method dbo        { $!dbo; }
 method driver     { $!driver; }
 method row        { $!row-class; }
+method new-row(%field-data?) {
+  self.row.new(:%field-data, :driver(self.driver), :db(self.db), :model(self), dbo => self.dbo);
+}

@@ -43,7 +43,7 @@ method load-models() {
     $mod-name .=subst(/(\/|\\)/, '::', :g);
     try {
       my $m = (require ::($mod-name));
-      %!cache{$mod-name.split('::')[*-1]} = $m.new(:$!driver, :$!db, :$!prefix);
+      %!cache{$mod-name.split('::')[*-1]} = $m.new(:$!driver, :$!db, :$!prefix, dbo => self);
       CATCH {
         default {
           #warn $_.backtrace.full;
@@ -66,7 +66,7 @@ method model(Str $model-name, Str :$module?) {
   }
   try { 
     my $m = (require ::("$model"));
-    %!cache{$model-name} = $m.new(:$!db, :$prefix, :$model-name);
+    %!cache{$model-name} = $m.new(:$!db, :$prefix, :$model-name, dbo => self);
     CATCH { default {
       say "Failed to load $model-name ($model)\n{$_}";
     } }

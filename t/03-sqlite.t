@@ -7,7 +7,7 @@ use Test;
 use DBO::Test;
 use DBIish;
 
-plan 11;
+plan 14;
 
 configure-sqlite;
 
@@ -60,5 +60,20 @@ for @rows {
 
 ok $cnt{'hello world'} == 1, 'did not update the only row containing a space';
 ok $cnt<abc> == @rows.elems - 1, 'updated all rows not containing a space';
+
+$hello.search({ txt => { 'not like' => '% %' }}).delete;
+$cnt = $hello.search({ txt => { 'not like' => '% %' }}).count;
+ok $cnt == 0, 'not like "% %" should be 0 after delete';
+
+$hello.search({ txt => { 'not like' => '% %' }}).update({ txt => 'abc' });
+@rows = $hello.search.all;
+$cnt  = { 'hello world' => 0, 'abc' => 0 };
+for @rows {
+  $cnt{$_.txt}++;
+}
+
+ok $cnt{'hello world'} == 1, 'did not update the only row containing a space';
+ok $cnt<abc> == @rows.elems - 1, 'updated all rows not containing a space';
+
 
 $*CWD = $cwd;

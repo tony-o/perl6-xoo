@@ -90,17 +90,25 @@ method update(%values, %filter?) {
   $sth.execute(|%query<params>);
 }
 
-method delete(%values, %filter?) {
-  return self.search(%filter).delete(%values)
+method delete(%filter?) {
+  return self.search(%filter).delete
     if %filter;
   die 'Please connect to a database first'
     unless self.^can('db');
-  my %query = $.sql(:delete, :update-values(%values));
+  my %query = $.sql(:delete);
   my $sth   = self.db.prepare(%query<sql>);
   $sth.execute(|%query<params>);
 }
 
-method sql($page-start?, $page-size?, :$field-override = Nil, :$update = False, :%update-values?, :$delete = False) {
+method insert(%field-data) {
+  die 'Please connect to a database first'
+    unless self.^can('db');
+  my %query = $.sql(:insert, :update-values(%field-data));
+  my $sth   = self.db.prepare(%query<sql>);
+  $sth.execute(|%query<params>);
+}
+
+method sql($page-start?, $page-size?, :$field-override = Nil, :$update = False, :%update-values?, :$delete = False, :$insert = False) {
   my (@*params, $sql);
 
   if $update {
@@ -112,7 +120,11 @@ method sql($page-start?, $page-size?, :$field-override = Nil, :$update = False, 
     $sql  = 'DELETE FROM ';
     $sql ~= self!gen-table(:for-update);
     $sql ~= self!gen-filters(key-table => self.table-name) if $!filter;
-    die $sql;
+  } elsif $insert {
+    $sql  = 'INSERT INTO ';
+    $sql ~= self!gen-table(:for-update);
+    $sql ~= ' ('~self!gen-field-ins(%update-values)~') ';
+    $sql ~= 'VALUES ('~('?'x@*params.elems).split('', :skip-empty).join(', ')~')';
   } else {
     $sql = 'SELECT ';
     if $field-override {
@@ -136,6 +148,16 @@ method !gen-field-sels {
   $!options<fields>.defined && $!options<fields>.keys
     ?? $!options<fields>.map({ self!gen-id($_) }).join(', ')
     !! '*';
+}
+
+method !gen-field-ins(%values) {
+  my @cols;
+  for %values -> $col {
+    my ($key, $val) = $col.kv;
+    @cols.push(self!gen-id($key));
+    @*params.push($val);
+  }
+  @cols.join(', ');
 }
 
 method !gen-table(:$for-update = False) {

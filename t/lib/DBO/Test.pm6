@@ -2,6 +2,7 @@ unit module DBO::Test;
 use DBIish;
 
 sub configure-sqlite is export {
+  #hello table + data:
   my $db = DBIish.connect('SQLite', :database<test.sqlite3>);
   $db.do(q:to/XYZ/);
   DROP TABLE IF EXISTS hello;
@@ -22,5 +23,33 @@ sub configure-sqlite is export {
     $sth.execute(('a'..'z').roll(10).join);
   }
   $sth.finish;
+
+
+
+  #customer + order tables
+  $db.do(q:to/XYZ/);
+  DROP TABLE IF EXISTS customer;
+  XYZ
+  $db.do(q:to/XYZ/);
+  CREATE TABLE customer (
+    id  INTEGER PRIMARY KEY AUTOINCREMENT,
+    name text,
+    contact text,
+    country text
+  );
+  XYZ
+  $db.do(q:to/XYZ/);
+  DROP TABLE IF EXISTS `order`;
+  XYZ
+  $db.do(q:to/XYZ/);
+  CREATE TABLE `order` (
+    id  INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_id INTEGER,
+    status TEXT,
+    order_date TIMESTAMP
+  );
+  XYZ
+
+
   $db.dispose;
 }
