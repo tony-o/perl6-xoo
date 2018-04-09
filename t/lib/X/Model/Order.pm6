@@ -20,5 +20,11 @@ has @.columns = [
 ];
 
 has @.relations = [
-  customer => { :has-one, :model<Customer>, :columns<customer_id customer_id> },
+  customer => { :has-one, :model<Customer>, :relate(customer_id => 'id') },
 ];
+
+
+# convenience methods
+method close {
+  self.update({ status => 'closed' });
+}

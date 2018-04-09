@@ -3,6 +3,7 @@ unit role DBO::Searchable;
 has $!filter  = {};
 has $!options = {};
 has $!inflate = True;
+has $!first-next;
 
 method search(%new-filter?, %options?) {
   return self
@@ -61,11 +62,37 @@ method all(%filter?) {
         warn $_;
         $new-model = $row;
       } }
-      $new-model = self.row.new(:field-data($row), :!is-dirty, :driver(self.driver), :db(self.db), :model(self));
+      $new-model = self.row.new(:field-data($row), :!is-dirty, :driver(self.driver), :db(self.db), :model(self), :dbo(self.dbo));
     }; 
     @rtv.push($new-model);
   }
   @rtv;
+}
+
+method first(%filter?, :$next = False) {
+  return self.search(%filter).first
+    if %filter;
+  die 'Please connect to a database first'
+    unless self.^can('db');
+  my %query = $.sql;
+  my $sth   = $next && $!first-next ?? $!first-next !! self.db.prepare(%query<sql>);
+  $sth.execute(|%query<params>);
+  $!first-next := $sth;
+  my $row   = $sth.row(:hash);
+  my $new-model;
+  try {
+    CATCH { default {
+      say 'not inflating: '~$row.perl;
+      warn $_;
+      $new-model = $row;
+    } }
+    $new-model = self.row.new(:field-data($row), :!is-dirty, :driver(self.driver), :db(self.db), :model(self), :dbo(self.dbo));
+  }; 
+  $new-model;
+}
+
+method next(%filter?) {
+  return self.first(%filter, :next);
 }
 
 method count(%filter?) {

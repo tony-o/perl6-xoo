@@ -33,7 +33,7 @@ submethod BUILD (:$!driver, :$!db, :$!quote, :%field-data, :$!model, :$!is-dirty
     }) unless self.^can($key);
   }
 
-  @!relations = $!model.relations;
+  @!relations = $!model.relations if $!model.^can('relations');
   for @!relations -> $rel {
     my ($key, $spec) = $rel.kv;
     self.^add_method($key, method {
@@ -51,6 +51,24 @@ method dbo        { $!dbo; }
 method driver     { $!driver; }
 method model      { $!model; }
 method is-dirty   { $!is-dirty; }
+
+method duplicate {
+  my $ky = @!columns.grep({ $_.value<is-primary-key> })[0].key;
+  my %fd = %!field-data.clone;
+  for %!field-changes -> $f {
+    %fd{$f.key} = $f.value;
+  }
+  %fd{$ky}:delete;
+  self.new(:$!driver, :$!db, :$!quote, :field-data(%fd), :$!model, :$!dbo);
+}
+
+method as-hash {
+  my %fd = %!field-data.clone;
+  for %!field-changes -> $f {
+    %fd{$f.key} = $f.value;
+  }
+  %fd;
+}
 
 method set-column(Str $key, $value) {
   %!field-changes{$key} = $value;
@@ -84,16 +102,18 @@ method get-relation(Str $column, :%spec?) {
       %filter{$r.value} = %!field-data{$r.key};
     }
   }
-  %filter.perl.say;
-  self.dbo.model(%meta<model>).search(%filter);
+  my $query = self.dbo.model(%meta<model>).search(%filter);
+  return $query.first
+    if %meta<has-one>;
+  $query;
 }
 
 method update {
-  my @keys = @!columns.grep({ $_.value<is-key> || $_.value<is-primary-key> });
+  my @keys = @!columns.grep({ $_.value<is-primary-key> });
   #find out if key exists
   my %filter;
   @keys.map({ my $value = %!field-changes{$_.key}//%!field-data{$_.key}; %filter{$_.key} = $value if $value; });
-  if %filter.keys.elems != @keys.elems {
+  if %filter.keys.elems != @keys.elems || Any ~~ %!field-data{@keys.grep({ $_.value<is-primary-key> })[0].key} {
     #create
     my %field-data = @!columns.map({
       my $x = $_.key;
@@ -101,14 +121,18 @@ method update {
         if @keys.grep({ $_.key ne $x })
     });
     my $new-id = $!model.insert(%field-data);
-    my $key    = @keys.grep({$_.value<is-primary-key>})[0].key // Nil;
+    if $!driver eq 'SQLite' {
+      $new-id = $!db.prepare('select last_insert_rowid() as nid;');
+      $new-id.execute;
+      $new-id = $new-id.row(:hash)<nid>;
+    }
+    my $key    = @keys[0].key // Nil;
     %!field-data{$key} = $new-id
       if $key;
   } elsif $!model.search(%filter).count == 1 {
     #update
     $!model.search(%filter).update(%!field-changes);
   } else {
-    %filter.perl.say;
     die 'More than one row found for key.';
   }
   #TODO refresh %!field-data
