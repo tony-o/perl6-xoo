@@ -59,7 +59,9 @@ has @.relations = [
 method delete-all { #never do this in real life
   die '.delete-all disabled in prod or if %*ENV{in-prod} not defined'
     if !defined %*ENV{in-prod} || so %*ENV{in-prod};
-  self.orders.delete;
+  my $s = self.search({ id => { '>' => -1 } });
+  $s.delete;
+  !so $s.count;
 }
 
 ```
@@ -82,7 +84,7 @@ This accepts a list of key values, the key defining the accessor name, the later
 
 ## Methods
 
-### search(%filter?, %options?)
+### `search(%filter?, %options?)`
 
 Creates a new filterable model and returns that.  Every subsequent call to `.search` will _add_ to the existing filters and options the best it can.
 
@@ -118,4 +120,37 @@ Returns the result of a `select count` for the current filter selection.  Provid
 ### `.delete(%filter?)`
 
 Deletes all rows matching criteria.  Providing `%filter` results in `.search(%filter).delete`
+
+## Convenience methods
+
+DBO::Model inheritance allows you to have convenience methods, these methods can act on whatever the current set of filters is.
+
+Consider the following:
+
+Convenience model definition:
+
+```perl6
+class X::Model::Customer does DBO::Model['customer'];
+
+# columns and relations
+
+method remove-closed-orders {
+  self.closed_orders.delete;
+}
+```
+
+Later in your code:
+
+```perl6
+my $customers = $dbo.model('Customer');
+
+my $all-customers    = $customers.search({ id => { '>' => -1 } });
+my $single-customers = $customers.search({ id => 5 });
+
+$all-customers.remove-closed-orders;
+# this removes all orders for customers with an id > -1
+$single-customer.remove-closed-orders;
+# this removes all orders for customers with id = 5
+```
+
 
