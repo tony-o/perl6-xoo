@@ -17,8 +17,9 @@ DBO is an ORM designed for convenience and ease of use, it is modeled after DBIx
 * look at YAML generation of models
 * validation of model/table/relationships when model loads
 * prefetch relationships option
+* handle compounded primary keys
 
-# DBO::Model
+# role DBO::Model
 
 What is a model?  A model is essentially a table in your database.  Your ::Model::X is pretty barebones, in this module you'll defined `@.columns` and `@.relations` (if there are any relations).
 
@@ -121,6 +122,10 @@ Returns the result of a `select count` for the current filter selection.  Provid
 
 Deletes all rows matching criteria.  Providing `%filter` results in `.search(%filter).delete`
 
+### `.new-row(%field-data?)`
+
+Creates a new row with %field-data.
+
 ## Convenience methods
 
 DBO::Model inheritance allows you to have convenience methods, these methods can act on whatever the current set of filters is.
@@ -153,4 +158,52 @@ $single-customer.remove-closed-orders;
 # this removes all orders for customers with id = 5
 ```
 
+# role DBO::Row
 
+A role to apply to your `::Row::Customer`.  If there is no `::Row::Customer` a generic row is created using the column and relationship data specified in the corresponding `Model` and this file is only really necessary if you want to add convenience methods.
+
+When a `class :: does DBO::Row`, it receives the info from the model and adds the methods for setting/getting field data.
+
+With the model definition above:
+
+```perl6
+my $invoice-model = $dbo.model('invoice');
+my $invoice = $invoice-model.new-row({
+  customer_id => $customer.id,
+  amount      => 400,
+});  # this $invoice is NOT in the database until .update
+
+my $old-amount = $invoice.amount; # = 400
+$invoice.amount($invoice.amount * 2);
+my $new-amount = $invoice.amount; # = 800
+
+$invoice.update;
+```
+
+If there is a collision in the naming conventions between your model and the row then you'll need to use `[set|get]-column`
+
+## Methods
+
+### `.duplicate`
+
+Duplicates the row omitting the `is-primary-key` field so the subsequent `.save` results in a new row rather than updating
+
+### `.as-hash`
+
+Returns the current field data for the row as a hash.  If there has been unsaved updates to fields then it returns _those_ values instead of what is in the database.  You can determine whether the row has field-changes with `is-dirty`
+
+### `.set-column(Str $key, $value)`
+
+Updates the field data for the column (not stored in database until `.update` is called).  If you want to `.wrap` a field setter for a certain key, wrap this and filter for the key
+
+### `.get-column(Str $key)`
+
+Retrieves the value for `$key` with any field changes having priority over data in database, use `.is-dirty`
+
+### `.get-relation(Str $column, :%spec?)`
+
+It is recommended any Model with a relationship name that conflicts and causes no convenience method to be generated be renamed, but use this if you must. `$customer.orders` is calling essentially `$customer.get-relation('orders')`.  Do not provide `%spec` unless you know what you're doing.
+
+### `.update`
+
+Saves the row in the database.  If the field with a positive `is-primary-key` is _set_ then it runs and `UPDATE ...` statement, otherwise it `INSERT ...`s and updates the Row's `is-primary-key` field.  Ensure you set one field with `is-primary-key`
