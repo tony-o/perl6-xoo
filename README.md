@@ -53,6 +53,15 @@ has @.relations = [
   open_orders => { :has-many, :model<Order>, :relate(id => 'customer_id', '+status' => 'open') },
   completed_orders => { :has-many, :model<Order>, :relate(id => 'customer_id', '+status' => 'closed') },
 ];
+
+# down here you can have convenience methods
+
+method delete-all { #never do this in real life
+  die '.delete-all disabled in prod or if %*ENV{in-prod} not defined'
+    if !defined %*ENV{in-prod} || so %*ENV{in-prod};
+  self.orders.delete;
+}
+
 ```
 
 In this example we're creating a customer model with columns `id, name, contact, country` and relations with specific filter criteria.  You may notice the `+status => 'open'` on the open\_orders relationship, the `+` here indicates it's a filter on the original table.
@@ -109,8 +118,4 @@ Returns the result of a `select count` for the current filter selection.  Provid
 ### `.delete(%filter?)`
 
 Deletes all rows matching criteria.  Providing `%filter` results in `.search(%filter).delete`
-
-### `insert(%field-data)`
-
-Creates a new row in the database, return value is Nil.  If you'd like a `::Row::XYZ` returned, then create the row, update the values, and then save (see `DBO::Row::`)
 
