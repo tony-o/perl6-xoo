@@ -59,7 +59,7 @@ In this example we're creating a customer model with columns `id, name, contact,
 
 ### Breakdown
 
-`does DBO::Model['table-name', 'Optional String or Type'];`
+`class :: does DBO::Model['table-name', 'Optional String or Type'];`
 
 Here you can see the role accepts one or two parameters, the first is the DB table name, the latter is a String or Type of the row you'd like to use for this model.  If no row is found then DBO will create a generic row and add helper methods for you using the model's column data.
 
