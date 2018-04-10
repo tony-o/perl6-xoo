@@ -133,6 +133,7 @@ method insert(%field-data) {
   my %query = $.sql(:insert, :update-values(%field-data));
   my $sth   = self.db.prepare(%query<sql>);
   $sth.execute(|%query<params>);
+  Nil;
 }
 
 method sql($page-start?, $page-size?, :$field-override = Nil, :$update = False, :%update-values?, :$delete = False, :$insert = False) {
