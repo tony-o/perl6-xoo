@@ -90,27 +90,27 @@ my $geo-filtered-customers = $customer.search({ country => 'usa' });
 #   }
 ```
 
-### .all(%filter?)
+### `.all(%filter?)`
 
 Returns all rows from query (an array of inflated `::Row::XYZ`).  Providing `%filter` is the same as doing `.search(%filter).all` and is provided only for convenience.
 
-### .first(%filter?, :$next = False)
+### `.first(%filter?, :$next = False)`
 
 Returns the first row (again, inflated `::Row::XYZ`) and caches the prepared statement (this is destroyed and ignored if $next is falsey)
 
-### .next(%filter?)
+### `.next(%filter?)`
 
 Same as calling `.first(%filter, :next)`
 
-### .count(%filter?)
+### `.count(%filter?)`
 
 Returns the result of a `select count` for the current filter selection.  Providing `%filter` results in `.search(%filter).count`
 
-### .delete(%filter?)
+### `.delete(%filter?)`
 
 Deletes all rows matching criteria.  Providing `%filter` results in `.search(%filter).delete`
 
-### insert(%field-data)
+### `insert(%field-data)`
 
 Creates a new row in the database, return value is Nil.  If you'd like a `::Row::XYZ` returned, then create the row, update the values, and then save (see `DBO::Row::`)
 
