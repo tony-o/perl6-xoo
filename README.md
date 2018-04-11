@@ -19,6 +19,61 @@ DBO is an ORM designed for convenience and ease of use, it is modeled after DBIx
 * validation of model/table/relationships when model loads
 * prefetch relationships option
 
+# Usage
+
+### lib/app.pm6
+```perl6
+use DBO;
+
+my DBO $d .=new;
+
+$d.connect(
+  driver => 'SQLite',
+  options => {
+    db => {
+      database => '/tmp/xyz.sqlite3',
+    },
+  },
+);
+
+my $customer-model = $d.model('Customer');
+my $new-customer   = $customer-model.new-row;
+$new-customer.name('xyz co');
+$new-customer.rate(150);
+$new-customer.update; # runs an insert because this is a new row
+
+my $xyz = $customer-model.search({ name => { 'like' => '%xyz%' } }).first;
+$xyz.rate( $xyz.rate * 2 ); #twice the rate!
+$xyz.update; # UPDATEs the database
+
+my $xyz-orders = $xyz.orders.count;
+```
+
+### lib/Model/Customer.pm6
+```perl6
+use DBO::Model;
+unit class Model::Customer does DBO::Model['customer'];
+
+has @.columns = [
+  id => {
+    type           => 'integer',
+    nullable       => False,
+    is-primary-key => True,
+    auto-increment => 1,
+  },
+  name => {
+    type           => 'text',
+  },
+  rate => {
+    type => 'integer',
+  },
+];
+
+has @.relations = [
+  orders => { :has-many, :model<Order>, :relate(id => 'customer_id') },
+];
+```
+
 # role DBO::Model
 
 What is a model?  A model is essentially a table in your database.  Your ::Model::X is pretty barebones, in this module you'll defined `@.columns` and `@.relations` (if there are any relations).

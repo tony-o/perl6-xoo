@@ -9,9 +9,10 @@ has %!cache;
 has $!connected;
 has $!prefix;
 
-multi method connect(DBDish::Connection :$!db, :%options) {
+multi method connect(DBDish::Connection:D: :$db, :%options) {
+  $!db     = $db;
   $!driver = $!db.driver-name.split('::')[1];
-  $!prefix = %options<prefix> // Nil;
+  $!prefix = %options<prefix> // '';
   self.load-models;
 }
 
@@ -20,7 +21,7 @@ multi method connect(:$driver, :%options) {
     $!db        = DBIish.connect($driver, |%options<db>) or die $!;
     $!driver    = $driver;
     $!connected = True;
-    $!prefix    = %options<prefix> // Nil;
+    $!prefix    = %options<prefix> // '';
     self.load-models;
     CATCH { default {
       if $_.^can('native-message') {
@@ -33,13 +34,14 @@ multi method connect(:$driver, :%options) {
 }
 
 method load-models() {
-  my $base = $!prefix !~~ Nil ?? $!prefix !! $?CALLERS::CLASS.^name;
+  my $base = $!prefix !~~ Nil ?? $!prefix !! ($?CALLERS::CLASS.^name//'');
   my @possible = try { CATCH { default {.say} }; "lib/{$base.subst('::', '/')}/Model".IO.dir.grep(
     * ~~ :f && *.extension eq any('pm6', 'pl6')
   ); } // [];
   for @possible -> $f {
     next unless $f.index("lib/$base") !~~ Nil;
-    my $mod-name = $f.path.substr($f.index("lib/$base")+4, *-4);
+    my $mod-name = $f.path.substr($f.index("lib/$base")+4, $f.rindex('.') - $f.index("lib/$base") - 4);
+    $mod-name .=subst(/^^(\/|\\)/, '');
     $mod-name .=subst(/(\/|\\)/, '::', :g);
     try {
       my $m = (require ::($mod-name));
