@@ -21,6 +21,8 @@ DBO is an ORM designed for convenience and ease of use, it is modeled after DBIx
 
 # Usage
 
+Below is a minimum viable model setup for your app.  DBO does _not_ create the table for you, that is up to you.
+
 ### lib/app.pm6
 ```perl6
 use DBO;
