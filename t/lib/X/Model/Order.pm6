@@ -5,7 +5,7 @@ has @.columns = [
   id => {
     type           => 'integer',
     nullable       => False,
-    auto_increment => 1,
+    auto-increment => 1,
     is-primary-key => True,
   },
   customer_id => {

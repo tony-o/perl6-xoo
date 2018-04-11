@@ -71,8 +71,12 @@ method as-hash {
 }
 
 method set-column(Str $key, $value) {
-  %!field-changes{$key} = $value;
-  #TODO: ensure column exists, validation hooks, etc
+  my $field-info = @!columns.grep({ $_.key eq $key })[0].value;
+  die "Cannot find field {$key}" unless defined $field-info;
+  my $new-value = $value;
+  $field-info<validate>($new-value)
+    if $field-info<validate>//Nil ~~ Callable;
+  %!field-changes{$key} = $new-value;
   $!is-dirty = True;
 }
 
@@ -110,27 +114,40 @@ method get-relation(Str $column, :%spec?) {
 
 method update {
   my @keys = @!columns.grep({ $_.value<is-primary-key> });
-  #find out if key exists
   my %filter;
+  warn "creating new row, define a primary key for {self.^name}"
+    unless @keys.elems;
   @keys.map({ my $value = %!field-changes{$_.key}//%!field-data{$_.key}; %filter{$_.key} = $value if $value; });
   if %filter.keys.elems != @keys.elems || Any ~~ %!field-data{@keys.grep({ $_.value<is-primary-key> })[0].key} {
     #create
     my %field-data = @!columns.map({
       my $x = $_.key;
       $x => (%!field-changes{$x}//%!field-data{$x}//Nil)
-        if @keys.grep({ $_.key ne $x })
+        if @keys.grep({ $_.key ne $x && $_.value<auto-increment>//True })
     });
-    my $new-id = $!model.insert(%field-data);
-    if $!driver eq 'SQLite' {
-      $new-id = $!db.prepare('select last_insert_rowid() as nid;');
-      $new-id.execute;
-      $new-id = $new-id.row(:hash)<nid>;
-    }
-    my $key    = @keys[0].key // Nil;
-    %!field-data{$key} = $new-id
-      if $key;
+    try { 
+      CATCH {
+        if $_.^can('native-message') && $_.native-message ~~ m:i{'unique constraint failed'} {
+          my $anon = self.^name ~~ m{'<anon|'};
+          die "Primary key constraint violated: (" ~
+            @keys.map({ "{$_.key} => '{%filter{$_.key}}'" }).join(', ') ~
+            ") in {$anon ?? (self.model.^name.subst(/'Model'/, 'Row') ~ ' (anon)') !! self.^name}";
+        }
+        die $_;
+      };
+      my $new-id = $!model.insert(%field-data);
+      if $!driver eq 'SQLite' && @keys.grep({ $_.value<auto-increment>//False }) {
+        $new-id = $!db.prepare('select last_insert_rowid() as nid;');
+        $new-id.execute;
+        $new-id = $new-id.row(:hash)<nid>;
+      }
+      my $key    = @keys.grep({ $_.value<auto-increment>//False })[0].key // Nil;
+      %!field-data{$key} = $new-id
+        if $key;
+    };
   } elsif $!model.search(%filter).count == 1 {
     #update
+    return unless %!field-changes.keys.elems;
     $!model.search(%filter).update(%!field-changes);
   } else {
     die 'More than one row found for key.';
@@ -138,7 +155,7 @@ method update {
   #TODO refresh %!field-data
   for %!field-changes -> $f {
     %!field-data{$f.key} = $f.value
-      if !(@keys.grep({ $_.key eq $f.key })[0].value<is-primary-key>//False);
+      if !(@keys.grep({ $_.key eq $f.key })[0].value<auto-increment>//False);
   }
   %!field-changes = ();
   $!is-dirty = False;

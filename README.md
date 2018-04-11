@@ -9,6 +9,7 @@ DBO is an ORM designed for convenience and ease of use, it is modeled after DBIx
 * row objects inherit from the model::@columns
 * model level convenience methods
 * row level convenience methods
+* basic handling compounded primary keys
 
 ## todo
 
@@ -17,7 +18,6 @@ DBO is an ORM designed for convenience and ease of use, it is modeled after DBIx
 * look at YAML generation of models
 * validation of model/table/relationships when model loads
 * prefetch relationships option
-* handle compounded primary keys
 
 # role DBO::Model
 

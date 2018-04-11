@@ -51,7 +51,7 @@ my $first = $c.orders.all[0];
 my $expc  = $c.orders.count+1;
 my $copy  = $first.reopen-duplicate;
 
-ok $first.id != $copy.id, "duplicated order should have different id ({$first.id} vs {$copy.id})";
-ok $expc == $copy.id, "duplicated order should have .id = $expc { $copy.id != $expc ?? "(GOT: {$copy.id})" !! ''}";
+ok $first.id//-2 != $copy.id//-1, "duplicated order should have different id ({$first.id} vs {$copy.id//-1})";
+ok $expc == $copy.id//-1, "duplicated order should have .id = $expc { ($copy.id//-1) != $expc ?? "(GOT: {$copy.id//-1})" !! ''}";
 
 $*CWD = $cwd;

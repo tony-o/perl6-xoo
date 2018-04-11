@@ -25,7 +25,6 @@ submethod BUILD (:$!driver, :$!db, :$!quote, :$!dbo) {
   if $row-class.defined {
     try require ::($row-class);
     if ::($row-class) ~~ Failure {
-      warn "Could not find model's row class $row-class";
       $!row-class = anon-row;
     } else {
       $!row-class = ::($row-class);
@@ -41,7 +40,6 @@ submethod BUILD (:$!driver, :$!db, :$!quote, :$!dbo) {
     my $r-str = @row-model.join('::');
     try require ::($r-str);
     if ::("$r-str") ~~ Failure {
-      warn "Could not find model's row class $r-str";
       $!row-class = anon-row;
     } else {
       $!row-class = ::("$r-str") // anon-row;

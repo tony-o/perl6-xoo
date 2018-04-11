@@ -50,6 +50,17 @@ sub configure-sqlite is export {
   );
   XYZ
 
+  $db.do(q:to/XYZ/);
+  DROP TABLE IF EXISTS `multikey`;
+  XYZ
+  $db.do(q:to/XYZ/);
+  CREATE TABLE `multikey` (
+    key1 text,
+    key2 text,
+    val  text,
+    PRIMARY KEY (`key1`, `key2`)
+  );
+  XYZ
 
   $db.dispose;
 }
