@@ -2,6 +2,8 @@
 
 Koos is an ORM designed for convenience and ease of use, it is modeled after DBIx::\* if you're into that kind of thing already (note: some concepts and names have deviated).  
 
+[![Build Status](https://travis-ci.org/tony-o/perl6-koos.svg?branch=master)](https://travis-ci.org/tony-o/perl6-koos)
+
 ## what works
 
 * relationships
