@@ -86,6 +86,7 @@ What is a model?  A model is essentially a table in your database.  Your ::Model
 use Koos::Model;
 # the second argument below is optional and also accepts a type.
 # if the arg is omitted then it attempts to auto load ::Row::Customer
+# if it fails to auto load then it uses an anonymous Row and adds convenience methods to that
 unit class X::Model::Customer does Koos::Model['customer', 'X::Row::Customer']; 
 
 has @.columns = [
