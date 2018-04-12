@@ -10,13 +10,13 @@ Koos is an ORM designed for convenience and ease of use, it is modeled after DBI
 * model level convenience methods
 * row level convenience methods
 * basic handling compounded primary keys
+* column validation hooks
 
 ## todo
 
-* column type and data validation hooks
 * decouple SQL generation from Koos::Searchable (this includes decoupling the SQL generation from the DB layer)
-* look at YAML generation of models
-* validation of model/table/relationships when model loads
+* look at possibility of YAML (or something else) generation of models
+* soft validation of model/table/relationships when model loads
 * prefetch relationships option
 
 # Usage
