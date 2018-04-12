@@ -1,5 +1,5 @@
-use DBO::Row;
-unit class X::Row::Order does DBO::Row;
+use Koos::Row;
+unit class X::Row::Order does Koos::Row;
 
 #convenience methods
 method reopen-duplicate {

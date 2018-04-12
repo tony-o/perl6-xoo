@@ -1,5 +1,5 @@
-use DBO::Model;
-unit class X::Model::Hello does DBO::Model['hello', 'X::Row::Hello'];
+use Koos::Model;
+unit class X::Model::Hello does Koos::Model['hello', 'X::Row::Hello'];
 
 has @.columns = [
   id => {

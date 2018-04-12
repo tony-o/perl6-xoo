@@ -1,6 +1,6 @@
-use DBO::Searchable;
-use DBO::Row;
-unit role DBO::Model[Str $table-name, Str $row-class?] does DBO::Searchable;
+use Koos::Searchable;
+use Koos::Row;
+unit role Koos::Model[Str $table-name, Str $row-class?] does Koos::Searchable;
 
 has $!table-name;
 has $!db;
@@ -11,7 +11,7 @@ has $!row-class;
 has $!dbo;
 
 sub anon-row {
-  my $cx = class :: does DBO::Row {};
+  my $cx = class :: does Koos::Row {};
   $cx;
 }
 

@@ -2,9 +2,9 @@
 
 use lib 'lib';
 use lib 't/lib';
-use DBO;
+use Koos;
 use Test;
-use DBO::Test;
+use Koos::Test;
 use DBIish;
 
 plan 14;
@@ -14,7 +14,7 @@ configure-sqlite;
 my $cwd = $*CWD;
 $*CWD = 't'.IO;
 
-my DBO $d .=new;
+my Koos $d .=new;
 my $db     = DBIish.connect('SQLite', database => 'test.sqlite3');
 
 $d.connect(:$db, :options({
@@ -41,7 +41,7 @@ $scratch = 0;
 for @rows -> $r {
   $scratch += @raw.grep({ $_<id> eq $r.id && $_<txt> eq $r.txt }).elems ?? 1 !! 0;
 }
-ok $scratch == @rows.elems, 'data matches between raw query and DBO';
+ok $scratch == @rows.elems, 'data matches between raw query and Koos';
 
 @rows = $hello.search({ txt => { 'like' => '% %' } }).all;
 ok @rows.elems == 1, 'should have one row with: txt like "% %"';

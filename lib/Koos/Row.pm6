@@ -1,4 +1,4 @@
-unit role DBO::Row;
+unit role Koos::Row;
 
 has $!table-name;
 has $!db;

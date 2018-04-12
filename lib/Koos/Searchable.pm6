@@ -1,4 +1,4 @@
-unit role DBO::Searchable;
+unit role Koos::Searchable;
 
 has $!filter  = {};
 has $!options = {};

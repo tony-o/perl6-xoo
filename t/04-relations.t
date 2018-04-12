@@ -2,9 +2,9 @@
 
 use lib 'lib';
 use lib 't/lib';
-use DBO;
+use Koos;
 use Test;
-use DBO::Test;
+use Koos::Test;
 use DBIish;
 use X::Model::Order;
 
@@ -15,7 +15,7 @@ configure-sqlite;
 my $cwd = $*CWD;
 $*CWD = 't'.IO;
 
-my DBO $d .=new;
+my Koos $d .=new;
 my $db     = DBIish.connect('SQLite', database => 'test.sqlite3');
 
 $d.connect(:$db, :options({

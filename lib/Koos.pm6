@@ -1,4 +1,4 @@
-unit role DBO;
+unit role Koos;
 
 use DBIish;
 use DBDish::Connection;
@@ -9,14 +9,15 @@ has %!cache;
 has $!connected;
 has $!prefix;
 
-multi method connect(DBDish::Connection:D: :$db, :%options) {
+multi method connect(Any:D: :$db, :%options) {
   $!db     = $db;
   $!driver = $!db.driver-name.split('::')[1];
   $!prefix = %options<prefix> // '';
   self.load-models;
 }
 
-multi method connect(:$driver, :%options) {
+multi method connect(Str:D :$driver, :%options) {
+  '20'.say;
   try {
     $!db        = DBIish.connect($driver, |%options<db>) or die $!;
     $!driver    = $driver;

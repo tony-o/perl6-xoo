@@ -1,5 +1,5 @@
-use DBO::Model;
-unit class X::Model::Multikey does DBO::Model['multikey'];
+use Koos::Model;
+unit class X::Model::Multikey does Koos::Model['multikey'];
 
 has @.columns = [
   key1 => {

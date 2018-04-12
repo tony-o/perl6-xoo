@@ -1,2 +1,2 @@
-use DBO::Row;
-unit class X::Row::Customer does DBO::Row;
+use Koos::Row;
+unit class X::Row::Customer does Koos::Row;

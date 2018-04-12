@@ -2,8 +2,8 @@
 
 use lib 'lib';
 use Test;
-use DBO;
+use Koos;
 
 plan 1;
 
-ok True, 'Can use DBO;';
+ok True, 'Can use Koos;';

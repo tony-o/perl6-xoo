@@ -1,12 +1,12 @@
 #!/usr/bin/env perl6
 
 use lib 'lib';
-use DBO::Searchable;
+use Koos::Searchable;
 use Test;
 
 plan 12;
 
-class A does DBO::Searchable { submethod BUILD { $!inflate = False; } };
+class A does Koos::Searchable { submethod BUILD { $!inflate = False; } };
 
 my $s  = A.new;
 my %ah = ( a=>5,c=>6 );
