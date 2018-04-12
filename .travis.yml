@@ -1,16 +1,9 @@
-language: perl
-perl:
-    - '5.20'
-env:
-    - BACKEND=moar
-matrix:
-    fast_finish: true
-sudo: false
-before_install:
-    - git clone https://github.com/tony-o/perl6-koos.git bins
-    - mv bins/brew ~/
+language: perl6
+perl6:
+  - latest
 install:
-    - eval "$($HOME/brew/bin/rakudobrew init -)"
-    - perl6 -v
+  - rakudobrew build zef
+  - zef install --depsonly .
 script:
-    - prove -e 'perl6 -Ilib' t/
+  - zef test .
+sudo: false
