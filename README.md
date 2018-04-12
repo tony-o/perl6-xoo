@@ -1,11 +1,11 @@
-# DBO
+# Koos
 
-DBO is an ORM designed for convenience and ease of use, it is modeled after DBIx::\* if you're into that kind of thing already (note: some concepts and names have deviated).  
+Koos is an ORM designed for convenience and ease of use, it is modeled after DBIx::\* if you're into that kind of thing already (note: some concepts and names have deviated).  
 
 ## what works
 
 * relationships
-* row object inflation (calling .first on a query returns a DBO::Row)
+* row object inflation (calling .first on a query returns a Koos::Row)
 * row objects inherit from the model::@columns
 * model level convenience methods
 * row level convenience methods
@@ -14,20 +14,20 @@ DBO is an ORM designed for convenience and ease of use, it is modeled after DBIx
 ## todo
 
 * column type and data validation hooks
-* decouple SQL generation from DBO::Searchable (this includes decoupling the SQL generation from the DB layer)
+* decouple SQL generation from Koos::Searchable (this includes decoupling the SQL generation from the DB layer)
 * look at YAML generation of models
 * validation of model/table/relationships when model loads
 * prefetch relationships option
 
 # Usage
 
-Below is a minimum viable model setup for your app.  DBO does _not_ create the table for you, that is up to you.
+Below is a minimum viable model setup for your app.  Koos does _not_ create the table for you, that is up to you.
 
 ### lib/app.pm6
 ```perl6
-use DBO;
+use Koos;
 
-my DBO $d .=new;
+my Koos $d .=new;
 
 $d.connect(
   driver => 'SQLite',
@@ -53,8 +53,8 @@ my $xyz-orders = $xyz.orders.count;
 
 ### lib/Model/Customer.pm6
 ```perl6
-use DBO::Model;
-unit class Model::Customer does DBO::Model['customer'];
+use Koos::Model;
+unit class Model::Customer does Koos::Model['customer'];
 
 has @.columns = [
   id => {
@@ -76,17 +76,17 @@ has @.relations = [
 ];
 ```
 
-# role DBO::Model
+# role Koos::Model
 
 What is a model?  A model is essentially a table in your database.  Your ::Model::X is pretty barebones, in this module you'll defined `@.columns` and `@.relations` (if there are any relations).
 
 ## Example
 
 ```perl6
-use DBO::Model;
+use Koos::Model;
 # the second argument below is optional and also accepts a type.
 # if the arg is omitted then it attempts to auto load ::Row::Customer
-unit class X::Model::Customer does DBO::Model['customer', 'X::Row::Customer']; 
+unit class X::Model::Customer does Koos::Model['customer', 'X::Row::Customer']; 
 
 has @.columns = [
   id => {
@@ -128,9 +128,9 @@ In this example we're creating a customer model with columns `id, name, contact,
 
 ### Breakdown
 
-`class :: does DBO::Model['table-name', 'Optional String or Type'];`
+`class :: does Koos::Model['table-name', 'Optional String or Type'];`
 
-Here you can see the role accepts one or two parameters, the first is the DB table name, the latter is a String or Type of the row you'd like to use for this model.  If no row is found then DBO will create a generic row and add helper methods for you using the model's column data.
+Here you can see the role accepts one or two parameters, the first is the DB table name, the latter is a String or Type of the row you'd like to use for this model.  If no row is found then Koos will create a generic row and add helper methods for you using the model's column data.
 
 `@.columns`
 
@@ -138,7 +138,7 @@ A list of columns in the table.  It is highly recommended you have *one* `is-pri
 
 `@.relations`
 
-This accepts a list of key values, the key defining the accessor name, the later a hash describing the relationship.  `:has-one` and `:has-many` are both used to dictate whether a DBO model returns an inflated object (:has-one) or a filterable object (:has-many).
+This accepts a list of key values, the key defining the accessor name, the later a hash describing the relationship.  `:has-one` and `:has-many` are both used to dictate whether a Koos model returns an inflated object (:has-one) or a filterable object (:has-many).
 
 ## Methods
 
@@ -185,14 +185,14 @@ Creates a new row with %field-data.
 
 ## Convenience methods
 
-DBO::Model inheritance allows you to have convenience methods, these methods can act on whatever the current set of filters is.
+Koos::Model inheritance allows you to have convenience methods, these methods can act on whatever the current set of filters is.
 
 Consider the following:
 
 Convenience model definition:
 
 ```perl6
-class X::Model::Customer does DBO::Model['customer'];
+class X::Model::Customer does Koos::Model['customer'];
 
 # columns and relations
 
@@ -215,11 +215,11 @@ $single-customer.remove-closed-orders;
 # this removes all orders for customers with id = 5
 ```
 
-# role DBO::Row
+# role Koos::Row
 
 A role to apply to your `::Row::Customer`.  If there is no `::Row::Customer` a generic row is created using the column and relationship data specified in the corresponding `Model` and this file is only really necessary if you want to add convenience methods.
 
-When a `class :: does DBO::Row`, it receives the info from the model and adds the methods for setting/getting field data.
+When a `class :: does Koos::Row`, it receives the info from the model and adds the methods for setting/getting field data.
 
 With the model definition above:
 
