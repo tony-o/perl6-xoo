@@ -114,7 +114,6 @@ method update(%values, %filter?) {
   die 'Please connect to a database first'
     unless self.^can('db');
   my %query = $.sql(:update, :update-values(%values));
-  say %query<sql>;
   my $sth   = self.db.prepare(%query<sql>);
   $sth.execute(|%query<params>);
 }
