@@ -8,7 +8,7 @@ has $!first-next;
 method search(%new-filter?, %options?) {
   return self
     unless %new-filter.defined || %options.defined;
-  my (%option, %filter); 
+  my (%option, %filter);
   if $!filter.keys {
     %filter = %(%($!filter), %new-filter);
   } else {
@@ -63,7 +63,7 @@ method all(%filter?) {
         $new-model = $row;
       } }
       $new-model = self.row.new(:field-data($row), :!is-dirty, :driver(self.driver), :db(self.db), :model(self), :dbo(self.dbo));
-    }; 
+    };
     @rtv.push($new-model);
   }
   @rtv;
@@ -88,7 +88,7 @@ method first(%filter?, :$next = False) {
       $new-model = $row;
     } }
     $new-model = self.row.new(:field-data($row), :!is-dirty, :driver(self.driver), :db(self.db), :model(self), :dbo(self.dbo));
-  }; 
+  };
   $new-model;
 }
 
@@ -143,7 +143,7 @@ method sql($page-start?, $page-size?, :$field-override = Nil, :$update = False, 
   if $update {
     $sql  = 'UPDATE ';
     $sql ~= self!gen-table(:for-update);
-    $sql ~= self!gen-update-values(%update-values); 
+    $sql ~= self!gen-update-values(%update-values);
     $sql ~= self!gen-filters(key-table => self.table-name) if $!filter;
   } elsif $delete {
     $sql  = 'DELETE FROM ';
@@ -221,11 +221,22 @@ method !gen-pairs($kv, $type = 'AND', $force-placeholder = False, :$key-table?, 
     if $kv.value ~~ Hash {
       $eq  := $kv.value.keys[0];
       $val := $kv.value.values[0];
+    } elsif $kv.value ~~ Block && $kv.value.().elems == 2 {
+      $eq  := $kv.value.()[0];
+      $val := $kv.value.()[1];
+    } elsif $kv.value ~~ Array {
+      my @arg;
+      for @($kv.value) -> $x {
+        @arg.push( self!gen-quote($x, $force-placeholder) );
+      }
+      $eq  := 'in';
+      @pairs.push: self!gen-id($kv.key, :table($key-table))~" $eq ("~@arg.join(', ')~")";
     } else {
       $eq  := '=';
       $val := $kv.value
     }
-    @pairs.push: self!gen-id($kv.key, :table($key-table))~" $eq "~self!gen-quote($val, $force-placeholder, :table($val-table));
+    @pairs.push: self!gen-id($kv.key, :table($key-table))~" $eq "~self!gen-quote($val, $force-placeholder, :table($val-table))
+      if $eq ne 'in';
   } elsif $kv ~~ Hash {
     for %($kv).pairs -> $x {
       @pairs.push: '( '~self!gen-pairs($x.key eq ('-or'|'-and') ?? $x.value !! $x, $x.key eq ('-or'|'-and') ?? $x.key.uc.substr(1) !! $type, $force-placeholder, :$key-table, :$val-table)~' )';
@@ -278,7 +289,7 @@ method !gen-joins {
         $joins ~= self!gen-join-str(%x);
       }
     }
-    $joins ~= self!gen-join-str($!options<join>) if $!options<join> ~~ Associative;   
+    $joins ~= self!gen-join-str($!options<join>) if $!options<join> ~~ Associative;
   }
   $joins;
 }

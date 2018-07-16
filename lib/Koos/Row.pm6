@@ -42,7 +42,6 @@ submethod BUILD (:$!driver, :$!db, :$!quote, :%field-data, :$!model, :$!is-dirty
   }
   warn 'Erroneous field data provided to row, either the model definition is incorrect or something is passing bad data (keys: '~%fd.keys.join(', ')~')'
     if %fd.keys.elems;
-
 }
 
 method table-name { $!table-name; }
@@ -113,7 +112,7 @@ method get-relation(Str $column, :%spec?) {
 }
 
 method update {
-  my @keys = @!columns.grep({ $_.value<is-primary-key> });
+  my @keys = @!columns.grep({ $_.value<is-primary-key> || $_.value<auto-increment> });
   my %filter;
   warn "creating new row, define a primary key for {self.^name}"
     unless @keys.elems;

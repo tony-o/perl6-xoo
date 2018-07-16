@@ -23,8 +23,8 @@ submethod BUILD (:$!driver, :$!db, :$!quote, :$!dbo) {
     !! { identifier => '"', value => '\'' };
   $!model-class = $?OUTERS::CLASS;
   if $row-class.defined {
-    try require ::($row-class);
-    if ::($row-class) ~~ Failure {
+    my $row-class-loaded = (try require ::($row-class)) === Nil;
+    if $row-class-loaded {
       $!row-class = anon-row;
     } else {
       $!row-class = ::($row-class);
@@ -38,8 +38,8 @@ submethod BUILD (:$!driver, :$!db, :$!quote, :$!dbo) {
       }
     }
     my $r-str = @row-model.join('::');
-    try require ::($r-str);
-    if ::("$r-str") ~~ Failure {
+    my $use-anon = (try require ::($r-str)) === Nil;
+    if $use-anon {
       $!row-class = anon-row;
     } else {
       $!row-class = ::("$r-str") // anon-row;
@@ -52,6 +52,7 @@ method db         { $!db; }
 method dbo        { $!dbo; }
 method driver     { $!driver; }
 method row        { $!row-class; }
-method new-row(%field-data?) {
-  self.row.new(:%field-data, :driver(self.driver), :db(self.db), :model(self), dbo => self.dbo);
+method new-row($field-data?) {
+  my %field-data = $field-data ?? ($field-data ~~ Block ?? $field-data.() !! $field-data) !! ();
+  self.row.new(:%field-data, :driver(self.driver), :db(self.db), :model(self), dbo => self.dbo, :is-dirty(True));
 }
