@@ -15,13 +15,13 @@ Xoo is an ORM designed for convenience and ease of use, it is modeled after DBIx
 * row level convenience methods
 * basic handling compounded primary keys
 * column validation hooks
+* YAML models (auto composed)
 
 ## todo
 
 * decouple SQL generation from Xoo::Searchable (this includes decoupling the SQL generation from the DB layer)
-* look at possibility of YAML (or something else) generation of models
 * soft validation of model/table/relationships when model loads
-* prefetch relationships option
+* prefetch relationships option (currently everything is prefetched)
 
 # Usage
 
