@@ -1,4 +1,4 @@
-unit module Koos::Test;
+unit module Xoo::Test;
 use DBIish;
 
 sub configure-sqlite is export {

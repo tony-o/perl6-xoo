@@ -1,4 +1,4 @@
-unit role Koos::Searchable;
+unit role Xoo::Searchable;
 
 has $!filter  = {};
 has $!options = {};

@@ -2,8 +2,8 @@
 
 use lib 'lib';
 use Test;
-use Koos;
+use Xoo;
 
 plan 1;
 
-ok True, 'Can use Koos;';
+ok True, 'Can use Xoo;';

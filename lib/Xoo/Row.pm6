@@ -1,4 +1,4 @@
-unit role Koos::Row;
+unit role Xoo::Row;
 
 has $!table-name;
 has $!db;
@@ -73,8 +73,10 @@ method set-column(Str $key, $value) {
   my $field-info = @!columns.grep({ $_.key eq $key })[0].value;
   die "Cannot find field {$key}" unless defined $field-info;
   my $new-value = $value;
-  $field-info<validate>($new-value)
-    if $field-info<validate>//Nil ~~ Callable;
+  if $field-info<validate>//Nil ~~ Callable {
+    die "Field $key did not pass validation with value ($new-value)"
+      unless $field-info<validate>($new-value);
+  }
   %!field-changes{$key} = $new-value;
   $!is-dirty = True;
 }

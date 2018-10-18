@@ -1,13 +1,15 @@
-# Koos
+# Xoo
 
-Koos is an ORM designed for convenience and ease of use, it is modeled after DBIx::\* if you're into that kind of thing already (note: some concepts and names have deviated).  
+Xoo is an ORM designed for convenience and ease of use, it is modeled after DBIx::\* if you're into that kind of thing already (note: some concepts and names have deviated).
 
-[![Build Status](https://travis-ci.org/tony-o/perl6-koos.svg?branch=master)](https://travis-ci.org/tony-o/perl6-koos)
+(This module was originally named Koos until my friends in Israel let me know that that's a vulgar word in Arabic)
+
+[![Build Status](https://travis-ci.org/tony-o/perl6-xoo.svg?branch=master)](https://travis-ci.org/tony-o/perl6-xoo)
 
 ## what works
 
 * relationships
-* row object inflation (calling .first on a query returns a Koos::Row)
+* row object inflation (calling .first on a query returns a Xoo::Row)
 * row objects inherit from the model::@columns
 * model level convenience methods
 * row level convenience methods
@@ -16,20 +18,20 @@ Koos is an ORM designed for convenience and ease of use, it is modeled after DBI
 
 ## todo
 
-* decouple SQL generation from Koos::Searchable (this includes decoupling the SQL generation from the DB layer)
+* decouple SQL generation from Xoo::Searchable (this includes decoupling the SQL generation from the DB layer)
 * look at possibility of YAML (or something else) generation of models
 * soft validation of model/table/relationships when model loads
 * prefetch relationships option
 
 # Usage
 
-Below is a minimum viable model setup for your app.  Koos does _not_ create the table for you, that is up to you.
+Below is a minimum viable model setup for your app.  Xoo does _not_ create the table for you, that is up to you.
 
 ### lib/app.pm6
 ```perl6
-use Koos;
+use Xoo;
 
-my Koos $d .=new;
+my Xoo $d .=new;
 
 $d.connect(
   driver => 'SQLite',
@@ -55,8 +57,8 @@ my $xyz-orders = $xyz.orders.count;
 
 ### lib/Model/Customer.pm6
 ```perl6
-use Koos::Model;
-unit class Model::Customer does Koos::Model['customer'];
+use Xoo::Model;
+unit class Model::Customer does Xoo::Model['customer'];
 
 has @.columns = [
   id => {
@@ -78,18 +80,18 @@ has @.relations = [
 ];
 ```
 
-# role Koos::Model
+# role Xoo::Model
 
 What is a model?  A model is essentially a table in your database.  Your ::Model::X is pretty barebones, in this module you'll defined `@.columns` and `@.relations` (if there are any relations).
 
 ## Example
 
 ```perl6
-use Koos::Model;
+use Xoo::Model;
 # the second argument below is optional and also accepts a type.
 # if the arg is omitted then it attempts to auto load ::Row::Customer
 # if it fails to auto load then it uses an anonymous Row and adds convenience methods to that
-unit class X::Model::Customer does Koos::Model['customer', 'X::Row::Customer']; 
+unit class X::Model::Customer does Xoo::Model['customer', 'X::Row::Customer']; 
 
 has @.columns = [
   id => {
@@ -131,9 +133,9 @@ In this example we're creating a customer model with columns `id, name, contact,
 
 ### Breakdown
 
-`class :: does Koos::Model['table-name', 'Optional String or Type'];`
+`class :: does Xoo::Model['table-name', 'Optional String or Type'];`
 
-Here you can see the role accepts one or two parameters, the first is the DB table name, the latter is a String or Type of the row you'd like to use for this model.  If no row is found then Koos will create a generic row and add helper methods for you using the model's column data.
+Here you can see the role accepts one or two parameters, the first is the DB table name, the latter is a String or Type of the row you'd like to use for this model.  If no row is found then Xoo will create a generic row and add helper methods for you using the model's column data.
 
 `@.columns`
 
@@ -141,7 +143,7 @@ A list of columns in the table.  It is highly recommended you have *one* `is-pri
 
 `@.relations`
 
-This accepts a list of key values, the key defining the accessor name, the later a hash describing the relationship.  `:has-one` and `:has-many` are both used to dictate whether a Koos model returns an inflated object (:has-one) or a filterable object (:has-many).
+This accepts a list of key values, the key defining the accessor name, the later a hash describing the relationship.  `:has-one` and `:has-many` are both used to dictate whether a Xoo model returns an inflated object (:has-one) or a filterable object (:has-many).
 
 ## Methods
 
@@ -192,14 +194,14 @@ Creates a new row with %field-data.
 
 ## Convenience methods
 
-Koos::Model inheritance allows you to have convenience methods, these methods can act on whatever the current set of filters is.
+Xoo::Model inheritance allows you to have convenience methods, these methods can act on whatever the current set of filters is.
 
 Consider the following:
 
 Convenience model definition:
 
 ```perl6
-class X::Model::Customer does Koos::Model['customer'];
+class X::Model::Customer does Xoo::Model['customer'];
 
 # columns and relations
 
@@ -222,11 +224,11 @@ $single-customer.remove-closed-orders;
 # this removes all orders for customers with id = 5
 ```
 
-# role Koos::Row
+# role Xoo::Row
 
 A role to apply to your `::Row::Customer`.  If there is no `::Row::Customer` a generic row is created using the column and relationship data specified in the corresponding `Model` and this file is only really necessary if you want to add convenience methods.
 
-When a `class :: does Koos::Row`, it receives the info from the model and adds the methods for setting/getting field data.
+When a `class :: does Xoo::Row`, it receives the info from the model and adds the methods for setting/getting field data.
 
 With the model definition above:
 
@@ -271,3 +273,21 @@ It is recommended any Model with a relationship name that conflicts and causes n
 ### `.update`
 
 Saves the row in the database.  If the field with a positive `is-primary-key` is _set_ then it runs and `UPDATE ...` statement, otherwise it `INSERT ...`s and updates the Row's `is-primary-key` field.  Ensure you set one field with `is-primary-key`
+
+## Field validation
+
+It's just this easy:
+
+```perl6
+has @.columns = [
+  qw<...>,
+  phone => {
+    type     => 'text',
+    validate => sub ($new-value) {
+      # return Falsey value here for validation to fail
+      #   Truthy value will cause validation to succeed
+    },
+  },
+  qw<...>,
+];
+```

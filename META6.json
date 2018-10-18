@@ -1,6 +1,6 @@
 {
-  "name"        : "Koos",
-  "version"     : "0.0.5",
+  "name"        : "Xoo",
+  "version"     : "0.0.6",
   "perl"        : "6",
   "description" : "An ORM.",
   "auth"        : "github:tony-o",
@@ -8,10 +8,10 @@
   "depends"     : ["DBIish"],
   "license"     : "Artistic-2.0",
   "provides"    : {
-    "Koos": "lib/Koos.pm6",
-    "Koos::Searchable": "lib/Koos/Searchable.pm6",
-    "Koos::Model": "lib/Koos/Model.pm6",
-    "Koos::Row": "lib/Koos/Row.pm6"
+    "Xoo": "lib/Xoo.pm6",
+    "Xoo::Searchable": "lib/Xoo/Searchable.pm6",
+    "Xoo::Model": "lib/Xoo/Model.pm6",
+    "Xoo::Row": "lib/Xoo/Row.pm6"
   },
-  "source-url"  : "git://github.com/tony-o/perl6-koos.git"
+  "source-url"  : "git://github.com/tony-o/perl6-xoo.git"
 } 

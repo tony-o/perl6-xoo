@@ -1,2 +1,2 @@
-use Koos::Row;
-unit class X::Row::Customer does Koos::Row;
+use Xoo::Row;
+unit class X::Row::Customer does Xoo::Row;

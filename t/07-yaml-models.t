@@ -6,7 +6,13 @@ use Xoo;
 use Test;
 use Xoo::Test;
 use DBIish;
-use X::Model::Order;
+
+my $no-yaml = (try require ::('YAML::Parser::LibYAML')) === Nil;
+
+if $no-yaml {
+  plan 0;
+  exit 0;
+}
 
 plan 6;
 
@@ -19,7 +25,7 @@ my Xoo $d .=new;
 my $db     = DBIish.connect('SQLite', database => 'test.sqlite3');
 
 $d.connect(:$db, :options({
-  prefix => 'X',
+  model-dirs => [qw<models>],
 }));
 
 my ($sth, $scratch);
@@ -44,7 +50,7 @@ for 0..^5 {
 }
 
 ok $c.orders.count == 5, 'should have 5 orders after inserts';
-ok $c.orders.WHAT ~~ X::Model::Order, '.orders should return an X::Model::Order';
+ok $c.orders.WHAT.^name ~~ m{'::Model::Order' $}, '.orders should return an ::Model::Order';
 
 ok $c.open_orders.count == 2, '2/5 orders for customer should be open';
 ok $c.completed_orders.count == 3, '3/5 orders for customer should be complete';

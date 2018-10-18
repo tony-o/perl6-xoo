@@ -1,5 +1,5 @@
-use Koos::Row;
-unit class X::Row::Order does Koos::Row;
+use Xoo::Row;
+unit class X::Row::Order does Xoo::Row;
 
 #convenience methods
 method reopen-duplicate {

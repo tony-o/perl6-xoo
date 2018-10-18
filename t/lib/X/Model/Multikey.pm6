@@ -1,5 +1,5 @@
-use Koos::Model;
-unit class X::Model::Multikey does Koos::Model['multikey'];
+use Xoo::Model;
+unit class X::Model::Multikey does Xoo::Model['multikey'];
 
 has @.columns = [
   key1 => {

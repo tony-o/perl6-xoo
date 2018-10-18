@@ -1,6 +1,6 @@
-use Koos::Searchable;
-use Koos::Row;
-unit role Koos::Model[Str $table-name, Str $row-class?] does Koos::Searchable;
+use Xoo::Searchable;
+use Xoo::Row;
+unit role Xoo::Model[Str $table-name, Str $row-class?] does Xoo::Searchable;
 
 has $!table-name;
 has $!db;
@@ -11,12 +11,28 @@ has $!row-class;
 has $!dbo;
 
 sub anon-row {
-  my $cx = class :: does Koos::Row {};
+  my $cx = class :: does Xoo::Row {};
   $cx;
 }
 
-submethod BUILD (:$!driver, :$!db, :$!quote, :$!dbo) {
+multi submethod BUILD (:$!driver, :$!db, :$!quote, :$!dbo, :@columns?, :@relations?) {
   CATCH { default { .say; } }
+  if @columns {
+    try {
+      CATCH { die '@columns supplied to model but unable to bind: '~$_; };
+      my $attr = self.^attributes.first: { $_.Str eq '@.columns' };
+      die '@columns supplied but no attribute in model' unless $attr;
+      $attr.set_value(self, @columns);
+    };
+  }
+  if @relations {
+    try {
+      CATCH { die '@columns supplied to model but unable to bind: '~$_; };
+      my $attr = self.^attributes.first: { $_.Str eq '@.relations' };
+      die '@relations supplied but no attribute in model' unless $attr;
+      $attr.set_value(self, @relations);
+    };
+  }
   $!table-name = $table-name;
   $!quote      = $!driver eq 'mysql'
     ?? { identifier => '`', value => '"' }
