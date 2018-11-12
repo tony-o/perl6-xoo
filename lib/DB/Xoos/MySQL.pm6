@@ -16,12 +16,15 @@ multi method connect(Str:D $dsn, :%options) {
 
   die 'unable to parse DSN' ~ $dsn unless %connect-params.elems;
   my $db;
- 
-  if %connect-params<host> ne '' {
-    $db = DBIish.connect('mysql', database => %connect-params<host>, |(:%options<db>//{}));
-  } else {
-    $db = DBIish.connect('mysql', |(:%options<db>//{}));
-  }
+  my %db-opts = |(:%connect-params<db>//{});
+
+  %db-opts<database> = %connect-params<db>   if %connect-params<db>;
+  %db-opts<host>     = %connect-params<host> if %connect-params<host>;
+  %db-opts<port>     = %connect-params<port> if %connect-params<port>;
+  %db-opts<user>     = %connect-params<user> if %connect-params<user>;
+  %db-opts<password> = %connect-params<pass> if %connect-params<pass>;
+
+  $db = DBIish.connect('Pg', |%db-opts);
 
   self.connect(
     :$db,
