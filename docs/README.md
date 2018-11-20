@@ -28,8 +28,12 @@ This is the documentation for Xoos, a perl6 ORM.
     * [.dump-filter](#dump-filter)
     * [.dump-options](#dump-options)
     * [.all(%filter?)](#allfilter)
-    * [.first(%filter?, :$next = False)](#firstfilter-next-false)
-
+    * [.first(%filter?, :$next = False)](#firstfilter-next--false)
+    * [.next(%filter?)](#nextfilter)
+    * [.count(%filter?)](#countfilter)
+    * [.update(%values, %filter?)](#updatevalues-filter)
+    * [.delete(%filter?)](#deletefilter)
+    * [.insert(%field-data)](#insertfield-data)
 * [yaml model files](#yaml-model-files)
 
 
