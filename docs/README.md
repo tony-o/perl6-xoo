@@ -1,7 +1,7 @@
 # Welcome to Xoos
 
 This is the documentation for Xoos, a perl6 ORM.  this document is incomplete.
-## 
+##
 
 * [terminology](#terminology)
   * [model](#model)
@@ -80,7 +80,7 @@ DSN format is `<driver>://(<user>:<pass>@)?<host>(:<port>)?/(<database>)?`.  the
 
 Xoos ships with `MySQL|Oracle|Pg|SQLite` and they all use `DBIish`, if you need to use `DB::Pg` then please consider contributing either to the ecosystem or this repo and use `DB::Xoos::Pg\(::\*\)` as a template
 
-You can pass `.connect` an existing connection 
+You can pass `.connect` an existing connection
 
 
 # models
