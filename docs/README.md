@@ -1,7 +1,6 @@
 # Welcome to Xoos
 
-This is the documentation for Xoos, a perl6 ORM.
-
+This is the documentation for Xoos, a perl6 ORM.  this document is incomplete.
 ## 
 
 * [terminology](#terminology)
@@ -201,7 +200,7 @@ $model.search({
   ]
 });
 
-# where id > 100 or id < 999 or (name like 'a%' AND "sales-channel" = 'web';
+# where id > 100 or id < 999 or (name like 'a%' AND "sales-channel" = 'web');
 ```
 
 # yaml model files
