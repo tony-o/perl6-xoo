@@ -59,4 +59,3 @@ $sq = $d.sql;
 ok $sq<sql> eq 'SELECT * FROM "dummy" as self ORDER BY a DESC, b ASC', "order-by in options affects sql";
 
 # vi:syntax=perl6
-

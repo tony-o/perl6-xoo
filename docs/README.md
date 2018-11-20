@@ -17,7 +17,13 @@ This is the documentation for Xoos, a perl6 ORM.
         * [DSN](#dsn)
         * [DB](#db)
 * [models](#models)
-  * [loading](#loading)
+  * [referencing the model](#referencing-the-model)
+    * [.table-name](#table-name)
+    * [.db](#db)
+    * [.driver](#driver)
+    * [.row-class](#row-class)
+    * [.new-row](#new-row)
+    * [.search(%filter?, %options?)](#search-filter-options)
 * [yaml model files](#yaml-model-files)
 
 
@@ -29,7 +35,7 @@ a model describes a table.  anything in your `Model/` can contain methods to act
 
 ## row
 
-describes a row of the table.  anything in your `Row/` can contain methods to act upon one data, ie 'Row::Invoice` might contain a method `mark-paid` that marks the invoice paid and updates your other accounting tables
+describes a row of the table.  anything in your `Row/` can contain methods to act upon one data, ie 'Row::Invoice` might contain a method `mark-paid` that marks the invoice paid and updates your other accounting tables.  the row class file is optional if you're not going to put anything into it then Xoos will create an anonymous row class that will act as the template object for conflating rows
 
 # order of operations
 
@@ -72,10 +78,92 @@ You can pass `.connect` an existing connection
 
 models should inherit from `DB::Xoos::Model[Str:D $table-name, Str:D $row-class?]` where `$table-name` is mandatory and `$row-class` will attempt to auto load the `Row` class based on the model's name
 
-## loading
+## referencing the model
 
+after Xoos is `.connected` you can obtain the loaded model via `$xoos.model('model-name')`.  in the returned object you'll be able to call any of the following methods plus any defined in your model's class
 
+### `.table-name`
 
+returns the name of the table the model is using
+
+### `.db`
+
+returns the raw db connection
+
+### `.driver`
+
+returns the driver the ORM is using
+
+### `.row-class`
+
+returns the raw row-class the model is using to conflate
+
+### `.new-row`
+
+creates and returns and _unsaved_ new row for the model
+
+### `.search(%filter?, %options?)`
+
+returns a reference to the model class with the filter cached and the sql (lazily) cached.  in this way you can chain sub searches and inherit filters with the sub-search filter overriding the parent
+
+```perl6
+my $search = $customer.search({ id => { '>' => 0 } });
+my $sub-search = $search.search({ name => { 'like' => 'a%' } });
+my $destructive-sub = $sub-search.search({ id => { '<' => 5 } });
+
+# search filter:           where id > 0;
+# sub-search filter:       where id > 0 and name like 'a%';
+# desctructive-sub filter: where id < 5 and name like 'a%';
+
+my $customer-id-only = $customer.search({}, {
+  fields => [qw<id>],
+}).first; #only the .id field in the customer row is fetched/filled
+```
+
+#### search %filter
+
+defines what you're looking for in you row search
+
+### `.dump-filter`
+
+returns the current filter for the search object
+
+### `.dump-options`
+
+returns the current options for the search object
+
+### `.all(%filter?)`
+
+returns all of the rows with the search criteria (or all if no search criteria is given).  also allows you to pass a new (inherited from the search object or model depending on the method of calling) for convenience
+
+```perl6
+my @customers = $xoos.model('Customer').all; #all customers
+my @a-customers = $xoos.model('Customer').all({ name => { 'like' => 'a%' } }); # all customers where name starts with a
+```
+
+### `.first(%filter?, :$next = False)`
+
+instantiates a cursor for first/next (you can use this method to get next by passing :next).
+
+### `.next(%filter?)`
+
+returns the next row for the cursor
+
+### `.count(%filter?)`
+
+returns a `count(\*)` query for the inherited filter
+
+### `.update(%values, %filter?)`
+
+updates all rows with the given values for the inherited filter
+
+### `.delete(%filter?)`
+
+deletes all rows matching the inherited filter, calling this on a `.model(<>)` will empty the table.
+
+### `.insert(%field-data)`
+
+inserts the given field-data into the table and returns `Nil`
 
 # yaml model files
 
