@@ -23,7 +23,13 @@ This is the documentation for Xoos, a perl6 ORM.
     * [.driver](#driver)
     * [.row-class](#row-class)
     * [.new-row](#new-row)
-    * [.search(%filter?, %options?)](#search-filter-options)
+    * [.search(%filter?, %options?)](#searchfilter-options)
+      * [search %filter](#searchfilter)
+    * [.dump-filter](#dump-filter)
+    * [.dump-options](#dump-options)
+    * [.all(%filter?)](#allfilter)
+    * [.first(%filter?, :$next = False)](#firstfilter-next-false)
+
 * [yaml model files](#yaml-model-files)
 
 
