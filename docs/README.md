@@ -175,6 +175,35 @@ deletes all rows matching the inherited filter, calling this on a `.model(<>)` w
 
 inserts the given field-data into the table and returns `Nil`
 
+## searching the model
+
+### and vs or
+
+the default search method is `and`:
+
+```perl6
+$model.search({ id => { '>' => 100 }, name => { 'like' => 'a%' } });
+
+# where id > 100 and name like 'a%'
+```
+
+if you'd like to generate an `or` or use an `and` nested within an or you can do that by prefixing it with `-`
+
+```perl6
+$model.search({
+  '-or' => [
+    ( id => { '>' => 100 }),
+    ( id => { '<' => 999 }),
+    [
+      ( name          => { 'like' => 'a%' }),
+      ( sales_channel => 'web' ),
+    ],
+  ]
+});
+
+# where id > 100 or id < 999 or (name like 'a%' AND "sales-channel" = 'web';
+```
+
 # yaml model files
 
 yaml model files are optional and ultimately depend on how you want to look at the structure of your tables in code.  the format of the yaml file is very similar to the perl6 format but here might be a typical layout (see model documentation for more info about what these options mean)

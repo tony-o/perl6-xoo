@@ -210,7 +210,10 @@ method !gen-pairs($kv, $type = 'AND', $force-placeholder = False, :$key-table?, 
   my @pairs;
   if $kv ~~ Pair {
     my ($eq, $val);
-    if $kv.value ~~ Hash {
+    if $kv.key ~~ Str && $kv.key eq ('-or'|'-and') {
+      @pairs.push: self!gen-pairs($kv.value, $kv.key.uc.substr(1), $force-placeholder, :$key-table, :$val-table)~' )';
+      $eq := 'andor';
+    } elsif $kv.value ~~ Hash {
       $eq  := $kv.value.keys[0];
       $val := $kv.value.values[0];
     } elsif $kv.value ~~ Block && $kv.value.().elems == 2 {
@@ -228,7 +231,7 @@ method !gen-pairs($kv, $type = 'AND', $force-placeholder = False, :$key-table?, 
       $val := $kv.value
     }
     @pairs.push: self!gen-id($kv.key, :table($key-table))~" $eq "~self!gen-quote($val, $force-placeholder, :table($val-table))
-      if $eq ne 'in';
+      if $eq ne ('andor'|'in');
   } elsif $kv ~~ Hash {
     for %($kv).pairs -> $x {
       @pairs.push: '( '~self!gen-pairs($x.key eq ('-or'|'-and') ?? $x.value !! $x, $x.key eq ('-or'|'-and') ?? $x.key.uc.substr(1) !! $type, $force-placeholder, :$key-table, :$val-table)~' )';
