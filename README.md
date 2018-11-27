@@ -1,4 +1,4 @@
-# Xoo
+# Xoos
 
 Xoos is an ORM designed for convenience and ease of use, it is modeled after DBIx::\* if you're into that kind of thing already (note: some concepts and names have deviated).
 
@@ -29,18 +29,11 @@ Below is a minimum viable model setup for your app.  Xoos does _not_ create the 
 
 ### lib/app.pm6
 ```perl6
-use Xoos;
+use DB::Xoos::SQLite;
 
-my Xoos $d .=new;
+my DB::Xoos::SQLite $d .=new;
 
-$d.connect(
-  driver => 'SQLite',
-  options => {
-    db => {
-      database => '/tmp/xyz.sqlite3',
-    },
-  },
-);
+$d.connect('sqlite://xyz.sqlite3');
 
 my $customer-model = $d.model('Customer');
 my $new-customer   = $customer-model.new-row;
@@ -57,8 +50,8 @@ my $xyz-orders = $xyz.orders.count;
 
 ### lib/Model/Customer.pm6
 ```perl6
-use Xoos::Model;
-unit class Model::Customer does Xoos::Model['customer'];
+use DB::Xoos::Model;
+unit class Model::Customer does DB::Xoos::Model['customer'];
 
 has @.columns = [
   id => {
@@ -80,18 +73,18 @@ has @.relations = [
 ];
 ```
 
-# role Xoos::Model
+# role DB::Xoos::Model
 
 What is a model?  A model is essentially a table in your database.  Your ::Model::X is pretty barebones, in this module you'll defined `@.columns` and `@.relations` (if there are any relations).
 
 ## Example
 
 ```perl6
-use Xoos::Model;
+use DB::Xoos::Model;
 # the second argument below is optional and also accepts a type.
 # if the arg is omitted then it attempts to auto load ::Row::Customer
 # if it fails to auto load then it uses an anonymous Row and adds convenience methods to that
-unit class X::Model::Customer does Xoos::Model['customer', 'X::Row::Customer']; 
+unit class X::Model::Customer does DB::Xoos::Model['customer', 'X::Row::Customer']; 
 
 has @.columns = [
   id => {
@@ -133,7 +126,7 @@ In this example we're creating a customer model with columns `id, name, contact,
 
 ### Breakdown
 
-`class :: does Xoos::Model['table-name', 'Optional String or Type'];`
+`class :: does DB::Xoos::Model['table-name', 'Optional String or Type'];`
 
 Here you can see the role accepts one or two parameters, the first is the DB table name, the latter is a String or Type of the row you'd like to use for this model.  If no row is found then Xoos will create a generic row and add helper methods for you using the model's column data.
 
