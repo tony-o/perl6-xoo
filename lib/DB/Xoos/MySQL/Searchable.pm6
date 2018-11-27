@@ -188,7 +188,7 @@ method !gen-table(:$for-update = False) {
 }
 
 method !gen-quote(\val, $force = False, :$table) {
-  if !$force && val =:= val."{val.^name}"() {
+  if !$force && val =:= try val."{val.^name}"() {
     # not a container
     return self!gen-id(val, :$table);
   } else {
