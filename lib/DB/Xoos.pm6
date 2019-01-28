@@ -82,7 +82,6 @@ method model(Str $model-name, Str :$module?) {
   }
   try { 
     my $m = (require ::("$model"));
-    'here'.say;
     %!cache{$model-name} = $m.new(:$!db, :$prefix, :$model-name, dbo => self);
     CATCH { default {
       say "Failed to load $model-name ($model): {$_}";
