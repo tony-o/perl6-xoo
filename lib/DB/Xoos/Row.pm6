@@ -124,7 +124,7 @@ method update {
     my %field-data = @!columns.map({
       my $x = $_.key;
       $x => (%!field-changes{$x}//%!field-data{$x}//Nil)
-        if @keys.grep({ $_.key ne $x && $_.value<auto-increment>//True })
+        if @keys.grep({ $_.key ne $x && $_.value<auto-increment>//True }) && %!field-changes{$x}//%!field-data{$x}
     });
     try { 
       CATCH {
