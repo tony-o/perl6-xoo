@@ -36,7 +36,7 @@ multi submethod BUILD (:$!driver, :$!db, :$!dbo, :@columns?, :@relations?) {
   $!model-class = $?OUTERS::CLASS;
   if $row-class.defined {
     my $row-class-loaded = (try require ::($row-class)) === Nil;
-    if !$row-class-loaded {
+    if $row-class-loaded {
       $!row-class = anon-row;
     } else {
       require ::($row-class);
