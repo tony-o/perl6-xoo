@@ -158,6 +158,7 @@ method sql($page-start?, $page-size?, :$field-override = Nil, :$update = False, 
     $sql   ~= self!gen-filters if self!filter;
     $sql   ~= self!gen-order;
   }
+
   { sql => $sql, params => @*params };
 }
 

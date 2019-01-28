@@ -137,14 +137,22 @@ method update {
         die $_;
       };
       my $new-id = $!model.insert(%field-data);
+      my $key    = @keys.grep({ $_.value<auto-increment>//False })[0].key // Nil;
       if $!driver eq 'SQLite' && @keys.grep({ $_.value<auto-increment>//False }) {
         $new-id = $!db.prepare('select last_insert_rowid() as nid;');
         $new-id.execute;
         $new-id = $new-id.row(:hash)<nid>;
+      } elsif $!driver eq 'Pg' && $key {
+        my %params = @!columns.grep({
+          $_.value<unique> && !$_.value<is-primary-key>
+        }).map({ .key => self.get-column(.key) });
+
+        if %params.keys {
+          $new-id = $!model.search(%params).first.as-hash{$key};
+        }
       }
-      my $key    = @keys.grep({ $_.value<auto-increment>//False })[0].key // Nil;
       %!field-data{$key} = $new-id
-        if $key;
+        if $key && $new-id;
     };
   } elsif $!model.search(%filter).count == 1 {
     #update
