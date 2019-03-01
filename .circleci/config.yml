@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       - image: ubuntu:14.04
-      - image: sqlite
+      #- image: sqlite
     
     working_directory: ~/proj
 
