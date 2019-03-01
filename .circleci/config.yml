@@ -8,15 +8,11 @@ jobs:
 
     steps:
       - checkout
-      - run:
-        name: install system deps
-        command: |
-            sudo apt install -y libsqlite3-dev
-            git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
-            eval 'export PATH="~/.rakudobrew/bin:$PATH"' ; echo $PATH
-            rakudobrew init
-            rakudobrew build moar
-            rakudobrew build zef
-            zef install --deps-only .
-            zef test .
-      - run: echo 'thank you for watching'
+      - run: sudo apt install -y libsqlite3-dev
+      - run: git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
+      - run: echo 'export PATH="~/.rakudobrew/bin:$PATH"' >> ~/.bashrc
+      - run: rakudobrew init
+      - run: rakudobrew build moar
+      - run: rakudobrew build zef
+      - run: zef install --deps-only .
+      - run: zef test .
