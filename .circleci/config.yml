@@ -2,14 +2,13 @@ version: 2
 jobs:
   build:
     docker:
-      - image: ubuntu:14.04
-      #- image: sqlite
+      - image: circleci/buildpack-deps:19.04
     
     working_directory: ~/proj
 
     steps:
       - checkout
-      - run: sudo apt install -y libsqlite3-0 git
+      - run: sudo apt install -y libsqlite3-0
       - run: git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
       - run: export PATH=~/.rakudobrew/bin:$PATH
       - run: rakudobrew init
