@@ -10,7 +10,7 @@ jobs:
       - checkout
       - run: sudo apt install -y libsqlite3-dev
       - run: git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
-      - run: eval 'export PATH="~/.rakudobrew/bin:$PATH"'
+      - run: eval 'export PATH="~/.rakudobrew/bin:$PATH"' ; echo $PATH
       - run: rakudobrew init
       - run: rakudobrew build moar
       - run: rakudobrew build zef
