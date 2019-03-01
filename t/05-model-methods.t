@@ -15,8 +15,7 @@ my $cwd = $*CWD;
 $*CWD = 't'.IO;
 
 my DB::Xoos::SQLite $d .=new;
-my $db     = DB::SQLite(database => 'test.sqlite3');
-$db.connect;
+my $db     = get-sqlite;
 
 $d.connect(:$db, :options({
   prefix => 'X',

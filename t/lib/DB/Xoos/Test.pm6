@@ -2,7 +2,7 @@ unit module Xoos::Test;
 use DB::SQLite;
 
 END {
-  try { 'test.sqlite3'.IO.unlink; };
+#  try { 'test.sqlite3'.IO.unlink; };
 }
 
 sub get-sqlite is export {

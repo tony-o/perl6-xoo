@@ -109,13 +109,9 @@ method get-relation(Str $column, :%spec?) {
       %filter{$r.value} = %!field-data{$r.key};
     }
   }
-  say "model: %meta<model>\n\$!model: {$!model.^name}";
-  say "got: {self.dbo.model(%meta<model>).^name}";
   my $query = self.dbo.model(%meta<model>).search(%filter);
-  say $query.first.perl;
   return $query.first
     if %meta<has-one> && $query.count;
-  say 'q';
   $query;
 }
 

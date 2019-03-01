@@ -70,7 +70,6 @@ method first(%filter?, :$next = False) {
   #$!first-next := $sth;
   return Nil unless $row.keys.elems;
   my $new-model;
-  say self.row.^name;
   try {
     CATCH { default {
       say 'not inflating: '~$row.perl;

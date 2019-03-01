@@ -5,9 +5,9 @@ use lib 't/lib';
 use DB::Xoos::SQLite;
 use Test;
 use DB::Xoos::Test;
-use DBIish;
+use DB::SQLite;
 
-plan 2;
+plan 3;
 
 configure-sqlite;
 
@@ -15,7 +15,7 @@ my $cwd = $*CWD;
 $*CWD = 't'.IO;
 
 my DB::Xoos::SQLite $d .=new;
-my $db     = DBIish.connect('SQLite', database => 'test.sqlite3');
+my $db     = get-sqlite;
 
 $d.connect(:$db, :options({
   prefix => 'X',
@@ -37,15 +37,15 @@ $c2.val('val');
 my $err;
 my $upd = -> {
   try {
-    CATCH { default {  $err = $_; } }; 
+    CATCH { default {  $err = $_; .rethrow } }; 
     $c2.update;
     $err = Any;
   };
 };
 
 
-$upd();
-ok $err.^can('message') && $err.message ~~ m{'Primary key constraint violated: '}, 'update should fail because of key constraint';
+dies-ok $upd;
+ok $err.^can('message') && $err.message ~~ m:i{'constraint'}, 'update should fail because of key constraint';
 
 $c2.key1('customer 2');
 $upd();

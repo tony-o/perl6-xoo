@@ -49,9 +49,6 @@ ok $c.orders.WHAT ~~ X::Model::Order, '.orders should return an X::Model::Order'
 ok $c.open_orders.count == 2, '2/5 orders for customer should be open';
 ok $c.completed_orders.count == 3, '3/5 orders for customer should be complete';
 
-'51'.say;
-$c.orders.all[0].customer;
-exit 0;
 ok $c.orders.all[0].customer.id == $c.id, 'order.customer.id round trip is correct';
 
 $*CWD = $cwd;
