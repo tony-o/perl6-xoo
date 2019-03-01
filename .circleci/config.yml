@@ -11,8 +11,8 @@ jobs:
       - run: sudo apt install -y libsqlite3-dev
       - run: git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
       - run: echo 'export PATH="~/.rakudobrew/bin:$PATH"' >> ~/.bashrc
-      - run: rakudobrew init
-      - run: rakudobrew build moar
-      - run: rakudobrew build zef
-      - run: zef install --deps-only .
-      - run: zef test .
+      - run: . ~/.bashrc; rakudobrew init
+      - run: . ~/.bashrc; rakudobrew build moar
+      - run: . ~/.bashrc; rakudobrew build zef
+      - run: . ~/.bashrc; zef install --deps-only .
+      - run: . ~/.bashrc; zef test .
