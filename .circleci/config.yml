@@ -36,30 +36,15 @@ jobs:
               #echo "installed to $BP"
               #eval 'export PATH="$BP:$PATH"'
               cd "$RPWD"
-  dist_docker:
-    machine: true
-    steps:
-      - attach_workspace:
-          at: /tmp/workspace
-      - run: |
-          cd /tmp/workspace/distribution-scripts
-          source build.env
-          cd docker
-          make CRYSTAL_DEB=/tmp/workspace/build/crystal_${CRYSTAL_VERSION}-1_amd64.deb
-      - persist_to_workspace:
-          root: /tmp/workspace/distribution-scripts/docker/
-          paths:
-            - build
   publish_docker:
     machine: true
     steps:
       - attach_workspace:
           at: /tmp/workspace
       - run: |
-          cd /tmp/workspace/distribution-scripts
-          source ./build.env
-          gunzip -c /tmp/workspace/build/docker-${CRYSTAL_VERSION}.tar.gz | docker image load
-          gunzip -c /tmp/workspace/build/docker-${CRYSTAL_VERSION}-build.tar.gz | docker image load
+          docker ps
+
+          exit 1;
           docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
           docker push ${DOCKER_REPOSITORY}:${DOCKER_TAG}
           docker push ${DOCKER_REPOSITORY}:${DOCKER_TAG}-build
@@ -69,6 +54,7 @@ workflows:
   tagged_release:
     jobs:
       - build_perl6
+      - prepare_nightly
       - publish_docker
       #    requires:
       #      - dist_docker
