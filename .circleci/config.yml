@@ -9,11 +9,11 @@ jobs:
     steps:
       - checkout
 
-      - run:
-          command: git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
-          command: export PATH=~/.rakudobrew/bin:$PATH
-          command: rakudobrew init
-          command: rakudobrew build moar
-          command: rakudobrew build zef
-          command: zef install --deps-only .
-          command: zef test .
+      - run: |
+        git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
+        export PATH=~/.rakudobrew/bin:$PATH
+        rakudobrew init
+        rakudobrew build moar
+        rakudobrew build zef
+        zef install --deps-only .
+        zef test .
