@@ -7,15 +7,26 @@ jobs:
     working_directory: ~/proj
 
     steps:
-      - checkout:
+      - checkout
+
+      - run:
           command: git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
           command: export PATH=~/.rakudobrew/bin:$PATH
           command: rakudobrew init
-      - build perl6:
+      - build perl6
+
+      - run:
           command: rakudobrew build moar
-      - build zef:
+
+      - build zef
+
+      - run:
           command: rakudobrew build zef
-      - install deps:
+      - install deps
+
+      - run:
           command: zef install --deps-only .
-      - test:
+      - test
+
+      - run:
           command: zef test .
