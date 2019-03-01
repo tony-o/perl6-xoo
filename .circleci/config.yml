@@ -25,6 +25,7 @@ jobs:
           name: build module deps
           command: |
               eval 'export PATH="~/.rakudobrew/bin:$PATH"'
+              rakudobrew rehash
               zef install --deps-only .
       - run:
           name: test module
