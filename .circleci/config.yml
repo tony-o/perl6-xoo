@@ -49,7 +49,7 @@ jobs:
           root: /tmp/workspace/distribution-scripts/docker/
           paths:
             - build
-	publish_docker:
+  publish_docker:
 		machine: true
       steps:
         - attach_workspace:
