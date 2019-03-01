@@ -19,3 +19,4 @@ jobs:
             rakudobrew build zef
             zef install --deps-only .
             zef test .
+      - run: echo 'thank you for watching'
