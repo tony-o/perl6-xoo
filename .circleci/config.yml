@@ -3,6 +3,7 @@ jobs:
   build:
     docker:
       - image: ubuntu:14.04
+      - image: sqlite
     
     working_directory: ~/proj
 
@@ -10,6 +11,7 @@ jobs:
       - checkout
 
       - run: |
+        sudo apt install libsqlite3-dev
         git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
         export PATH=~/.rakudobrew/bin:$PATH
         rakudobrew init
