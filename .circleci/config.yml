@@ -16,14 +16,16 @@ jobs:
           name: install perl6
           command: |
               export PWD=`pwd`
-              cd ..
+              cd ~
+              mkdir bin
+              eval 'export PATH="~/bin:$PATH"'
               ssh-keygen -f id_rsa -t rsa -N ''
               git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
               git clone https://github.com/rakudo/rakudo rak
               cd rak
-              perl Configure.pl --gen-moar --gen-nqp --backends=moar --prefix=/usr
+              perl Configure.pl --gen-moar --gen-nqp --backends=moar --prefix=~/bin
               make
-              sudo make install
+              make install
               cd ..
               git clone https://github.com/ugexe/zef.git zef
               cd zef
