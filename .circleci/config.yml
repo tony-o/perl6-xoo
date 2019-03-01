@@ -25,16 +25,16 @@ jobs:
               eval 'export PATH="$HOME/bin:$PATH"'
               git clone https://github.com/rakudo/rakudo $HOME/rak
               cd $HOME/rak
-              perl Configure.pl --gen-moar --gen-nqp --backends=moar --prefix=$HOME
-              make
-              sudo make install
+              #perl Configure.pl --gen-moar --gen-nqp --backends=moar --prefix=$HOME
+              #make
+              #sudo make install
               cd $HOME
-              git clone https://github.com/ugexe/zef.git $HOME/zef
+              #git clone https://github.com/ugexe/zef.git $HOME/zef
               cd $HOME/zef
-              export BP=`perl6 -Ilib bin/zef install . | grep -A 1 'bin/ script' | tail -n 1`
-              echo "installed to $BP"
-              eval 'export PATH="$BP:$PATH"'
-              echo "cd "'"'"$RPWD"'"'
+              #export BP=`perl6 -Ilib bin/zef install . | grep -A 1 'bin/ script' | tail -n 1`
+              #echo "installed to $BP"
+              #eval 'export PATH="$BP:$PATH"'
+              cd "$RPWD"
   dist_docker:
     machine: true
     steps:
