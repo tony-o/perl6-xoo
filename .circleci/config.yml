@@ -9,8 +9,7 @@ jobs:
 
     steps:
       - checkout
-      - run: sudo apt search sqlite
-      - run: sudo apt install -y libsqlite3-dev
+      - run: sudo apt install -y libsqlite3-0
       - run: git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
       - run: export PATH=~/.rakudobrew/bin:$PATH
       - run: rakudobrew init
