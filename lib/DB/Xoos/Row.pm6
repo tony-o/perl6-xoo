@@ -32,7 +32,6 @@ submethod BUILD (:$!driver, :$!db, :$!quote, :%field-data, :$!model, :$!is-dirty
       self.get-column($key);
     }) unless self.^can($key);
   }
-  print "\n";
 
   @!relations = $!model.relations if $!model.^can('relations');
   for @!relations -> $rel {
@@ -146,7 +145,7 @@ method update {
           $new-id.execute;
           $new-id = $new-id.row(:hash)<nid>;
         } else {
-          $new-id = $!db.query('select last_insert_rowid() as nid;').array[0];
+          $new-id = $!db.query('select last_insert_rowid() as nid;').hash<nid>;
         }
       } elsif $!driver eq 'Pg' && $key {
         my %params = @!columns.grep({
