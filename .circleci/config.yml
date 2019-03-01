@@ -24,7 +24,7 @@ jobs:
               cd rak
               perl Configure.pl --gen-moar --gen-nqp --backends=moar --prefix=$HOME/bin
               make
-              make install
+              sudo make install
               cd ..
               git clone https://github.com/ugexe/zef.git zef
               cd zef
