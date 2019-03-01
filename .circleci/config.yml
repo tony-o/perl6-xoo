@@ -30,7 +30,7 @@ jobs:
               #sudo make install
               cd $HOME
               #git clone https://github.com/ugexe/zef.git $HOME/zef
-              cd $HOME/zef
+              #cd $HOME/zef
               #export BP=`perl6 -Ilib bin/zef install . | grep -A 1 'bin/ script' | tail -n 1`
               #echo "installed to $BP"
               #eval 'export PATH="$BP:$PATH"'
