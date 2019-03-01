@@ -15,12 +15,20 @@ jobs:
       - run:
           name: install perl6
           command: |
+              export PWD=`pwd`
+              cd ..
               ssh-keygen -f id_rsa -t rsa -N ''
               git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
-              eval 'export PATH="~/.rakudobrew/bin:$PATH"'
-              rakudobrew init
-              rakudobrew build moar
-              rakudobrew build zef
-              rakudobrew rehash
+              git clone https://github.com/rakudo/rakudo rak
+              cd rak
+              perl Configure.pl --gen-moar --gen-nqp --backends=moar
+              make --prefix=/usr/bin
+              sudo make install
+              cd ..
+              git clone https://github.com/ugexe/zef.git zef
+              cd zef
+              perl6 -Ilib bin/zef install .
+              cd ..
+              cd "$PWD"
               zef install --deps-only .
               zef test .
