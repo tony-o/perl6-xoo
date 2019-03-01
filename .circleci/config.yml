@@ -21,7 +21,7 @@ jobs:
               git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
               git clone https://github.com/rakudo/rakudo rak
               cd rak
-              perl Configure.pl --gen-moar --gen-nqp --backends=moar --prefix=/usr/bin
+              perl Configure.pl --gen-moar --gen-nqp --backends=moar --prefix=/usr
               make
               sudo make install
               cd ..
