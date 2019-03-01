@@ -11,7 +11,7 @@ jobs:
       - run: 
           name: install build deps
           command: |
-              sudo apt install -y libsqlite3-dev; \
+              sudo apt install -y libsqlite3-dev
       - run:
           name: install perl6
           command: |
