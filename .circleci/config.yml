@@ -69,6 +69,6 @@ workflows:
   tagged_release:
     jobs:
       - build_perl6
-      - publish_docker:
-          requires:
-            - dist_docker
+      #- publish_docker:
+      #    requires:
+      #      - dist_docker
