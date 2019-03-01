@@ -22,7 +22,7 @@ jobs:
               ssh-keygen -f id_rsa -t rsa -N ''
               git clone https://github.com/rakudo/rakudo rak
               cd rak
-              perl Configure.pl --gen-moar --gen-nqp --backends=moar --prefix=$HOME/bin
+              perl Configure.pl --gen-moar --gen-nqp --backends=moar --prefix=$HOME
               make
               sudo make install
               cd ..
