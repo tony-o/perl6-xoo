@@ -11,7 +11,7 @@ jobs:
       - run: sudo apt install -y libsqlite3-0
       - run: git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
       - run:
-        - environment:
+        environment:
           PATH: "~/.rakudobrew/bin:$PATH"
       - run: echo $PATH
       - run: find ~/.rakudobrew/bin
