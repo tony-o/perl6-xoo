@@ -12,10 +12,21 @@ jobs:
           name: install build deps
           command: |
               sudo apt install -y libsqlite3-dev; \
-              git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
-#      - run: echo 'export PATH="~/.rakudobrew/bin:$PATH"' >> ~/.bashrc
-#      - run: . ~/.bashrc; rakudobrew init
-#      - run: . ~/.bashrc; rakudobrew build moar
-#      - run: . ~/.bashrc; rakudobrew build zef
-#      - run: . ~/.bashrc; zef install --deps-only .
-#      - run: . ~/.bashrc; zef test .
+      - run:
+          name: install perl6
+          command: |
+              git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew; \
+              echo 'export PATH="~/.rakudobrew/bin:$PATH"' >> ~/.bashrc; \
+              rakudobrew init
+              rakudobrew build moar
+              rakudobrew build zef
+      - run:
+          name: build module deps
+          command: |
+              echo 'export PATH="~/.rakudobrew/bin:$PATH"' >> ~/.bashrc; \
+              zef install --deps-only .
+      - run:
+          name: test module
+          command: |
+              echo 'export PATH="~/.rakudobrew/bin:$PATH"' >> ~/.bashrc; \
+              zef test .
