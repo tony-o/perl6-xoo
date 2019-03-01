@@ -18,12 +18,12 @@ jobs:
               export PWD=`pwd`
               cd ~
               mkdir bin
-              eval 'export PATH="~/bin:$PATH"'
+              eval 'export PATH="$HOME/bin:$PATH"'
               ssh-keygen -f id_rsa -t rsa -N ''
               git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
               git clone https://github.com/rakudo/rakudo rak
               cd rak
-              perl Configure.pl --gen-moar --gen-nqp --backends=moar --prefix=~/bin
+              perl Configure.pl --gen-moar --gen-nqp --backends=moar --prefix=$HOME/bin
               make
               make install
               cd ..
