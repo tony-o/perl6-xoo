@@ -9,14 +9,10 @@ jobs:
     steps:
       - checkout
       - run: sudo apt install -y libsqlite3-0
-      - run: git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
-      - run:
-        environment:
-          PATH: "~/.rakudobrew/bin:$PATH"
-      - run: echo $PATH
-      - run: find ~/.rakudobrew/bin
-      - run: rakudobrew init
-      - run: rakudobrew build moar
-      - run: rakudobrew build zef
+      - run: git clone https://github.com/tadzik/rakudobrew ~/.rb
+      - run: ~/.rb/bin/rakudobrew init
+      - run: ~/.rb/bin/rakudobrew build moar
+      - run: ~/.rb/bin/rakudobrew build zef
+      - run: find ~/.rb/
       - run: zef install --deps-only .
       - run: zef test .
