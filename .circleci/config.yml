@@ -29,4 +29,5 @@ jobs:
       - test
 
       - run:
+
           command: zef test .
