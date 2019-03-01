@@ -9,7 +9,6 @@ jobs:
     steps:
       - checkout
       - run: 
-        name: install build deps
         command: |
             sudo apt install -y libsqlite3-dev; \
             git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
