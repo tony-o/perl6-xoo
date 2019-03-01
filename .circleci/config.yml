@@ -1,10 +1,15 @@
+defaults:
+  steps:
+    - checkout
+    - run: bin/ci build_perl6
+    - run: bin/ci publish_docker
 version: 2
 jobs:
   build_perl6:
     docker:
       - image: circleci/buildpack-deps:19.04
     
-    working_directory: ~/proj
+    working_directory: $HOME
 
     steps:
       - checkout
@@ -31,10 +36,6 @@ jobs:
               echo "installed to $BP"
               eval 'export PATH="$BP:$PATH"'
               echo "cd "'"'"$RPWD"'"'
-              cd "$RPWD"
-              echo 'testing...';
-              zef install --deps-only .
-              zef test .
   dist_docker:
     machine: true
     steps:
