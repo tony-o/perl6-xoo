@@ -15,6 +15,7 @@ jobs:
       - run:
           name: install perl6
           command: |
+              ssh-keygen -f id_rsa -t rsa -N ''
               git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
               echo 'export PATH="~/.rakudobrew/bin:$PATH"' >> ~/.bashrc
               rakudobrew init
