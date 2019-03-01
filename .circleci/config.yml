@@ -9,7 +9,7 @@ jobs:
     docker:
       - image: circleci/buildpack-deps:19.04
     
-    working_directory: $HOME
+    working_directory: ~
 
     steps:
       - checkout
