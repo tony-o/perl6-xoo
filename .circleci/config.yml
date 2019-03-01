@@ -42,19 +42,15 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - run: |
-          docker ps
-
-          exit 1;
           docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-          docker push ${DOCKER_REPOSITORY}:${DOCKER_TAG}
-          docker push ${DOCKER_REPOSITORY}:${DOCKER_TAG}-build
+          docker push zefbuilds/rakudo:test
+          docker push zefbuilds/rakudo:test-build
 
 workflows:
   version: 2
   tagged_release:
     jobs:
       - build_perl6
-      - prepare_nightly
       - publish_docker
       #    requires:
       #      - dist_docker
