@@ -21,15 +21,6 @@ jobs:
               rakudobrew init
               rakudobrew build moar
               rakudobrew build zef
-      - run:
-          name: build module deps
-          command: |
-              eval 'export PATH="~/.rakudobrew/bin:$PATH"'
-              rakudobrew init
-              zef install --deps-only .
-      - run:
-          name: test module
-          command: |
-              eval 'export PATH="~/.rakudobrew/bin:$PATH"'
               rakudobrew rehash
+              zef install --deps-only .
               zef test .
