@@ -1,8 +1,9 @@
 defaults:
   steps:
     - checkout
-    - run: bin/ci build_perl6
-    - run: bin/ci publish_docker
+    - run: tagged_release
+#    - run: bin/ci build_perl6
+#    - run: bin/ci publish_docker
 version: 2
 jobs:
   build_perl6:
@@ -68,6 +69,6 @@ workflows:
   tagged_release:
     jobs:
       - build_perl6
-      #- publish_docker:
+      - publish_docker
       #    requires:
       #      - dist_docker
