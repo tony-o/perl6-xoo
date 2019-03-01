@@ -50,7 +50,7 @@ jobs:
           paths:
             - build
   publish_docker:
-		machine: true
+    machine: true
       steps:
         - attach_workspace:
             at: /tmp/workspace
