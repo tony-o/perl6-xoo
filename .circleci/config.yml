@@ -8,6 +8,14 @@ jobs:
 
     steps:
       - checkout
-
-      - run:
-          command: echo 'l'
+          command: git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
+          command: export PATH=~/.rakudobrew/bin:$PATH
+          command: rakudobrew init
+      - build perl6
+          command: rakudobrew build moar
+      - build zef
+          command: rakudobrew build zef
+      - install deps:
+          command: zef install --deps-only .
+      - test:
+          command: zef test .
