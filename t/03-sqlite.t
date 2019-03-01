@@ -5,7 +5,7 @@ use lib 't/lib';
 use DB::Xoos::SQLite;
 use Test;
 use DB::Xoos::Test;
-use DBIish;
+use DB::SQLite;
 
 plan 14;
 
@@ -15,7 +15,8 @@ my $cwd = $*CWD;
 $*CWD = 't'.IO;
 
 my DB::Xoos::SQLite $d .=new;
-my $db     = DBIish.connect('SQLite', database => 'test.sqlite3');
+my $db     = DB::SQLite.new(filename => 'test.sqlite3');
+$db.connect;
 
 $d.connect(:$db, :options({
   prefix => 'X',
@@ -30,11 +31,10 @@ ok @rows[0].txt eq 'hello world', '.txt eq "hello world"';
 ok @rows[0].id == 1, 'the .id is, in fact, 1';
 
 @rows = $hello.search({ txt => { '<>' => 'hello world' } }).all;
-$sth = $db.prepare(q:to/SSS/);
+$sth = $db.query(q:to/SSS/);
 select * from hello where txt <> 'hello world';
 SSS
-$sth.execute;
-@raw  = $sth.allrows(:array-of-hash);
+@raw  = $sth.hashes;
 
 ok @rows.elems == @raw.elems, 'ORM should return same number of rows as artisinal handcrafted query';
 $scratch = 0;

@@ -1,7 +1,5 @@
 unit module DB::Xoos::DSN;
 
-#use Grammar::Tracer;
-
 grammar dsn {
   token TOP {
     ^

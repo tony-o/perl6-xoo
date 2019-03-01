@@ -1,25 +1,33 @@
 unit module Xoos::Test;
-use DBIish;
+use DB::SQLite;
 
 END {
   try { 'test.sqlite3'.IO.unlink; };
 }
 
+sub get-sqlite is export {
+  my $db = DB::SQLite.new(:filename<test.sqlite3>);
+  $db.connect;
+  $db;
+}
+
 sub configure-sqlite is export {
   #hello table + data:
-  my $db = DBIish.connect('SQLite', :database<test.sqlite3>);
-  $db.do(q:to/XYZ/);
+  my $db = DB::SQLite.new(:filename<test.sqlite3>);
+  $db.connect;
+
+  $db.execute(q:to/XYZ/);
   DROP TABLE IF EXISTS hello;
   XYZ
 
-  $db.do(q:to/XYZ/);
+  $db.execute(q:to/XYZ/);
   CREATE TABLE hello (
     id  INTEGER PRIMARY KEY AUTOINCREMENT,
     txt TEXT
   );
   XYZ
 
-  my $sth = $db.prepare(q:to/XYZ/);
+  my $sth = $db.db.prepare(q:to/XYZ/);
     INSERT INTO hello (txt) VALUES (?);
   XYZ
   $sth.execute('hello world');
@@ -31,10 +39,10 @@ sub configure-sqlite is export {
 
 
   #customer + order tables
-  $db.do(q:to/XYZ/);
+  $db.execute(q:to/XYZ/);
   DROP TABLE IF EXISTS customer;
   XYZ
-  $db.do(q:to/XYZ/);
+  $db.execute(q:to/XYZ/);
   CREATE TABLE customer (
     id  INTEGER PRIMARY KEY AUTOINCREMENT,
     name text,
@@ -42,10 +50,10 @@ sub configure-sqlite is export {
     country text
   );
   XYZ
-  $db.do(q:to/XYZ/);
+  $db.execute(q:to/XYZ/);
   DROP TABLE IF EXISTS `order`;
   XYZ
-  $db.do(q:to/XYZ/);
+  $db.execute(q:to/XYZ/);
   CREATE TABLE `order` (
     id  INTEGER PRIMARY KEY AUTOINCREMENT,
     customer_id INTEGER,
@@ -54,10 +62,10 @@ sub configure-sqlite is export {
   );
   XYZ
 
-  $db.do(q:to/XYZ/);
+  $db.execute(q:to/XYZ/);
   DROP TABLE IF EXISTS `multikey`;
   XYZ
-  $db.do(q:to/XYZ/);
+  $db.execute(q:to/XYZ/);
   CREATE TABLE `multikey` (
     key1 text,
     key2 text,
@@ -66,5 +74,4 @@ sub configure-sqlite is export {
   );
   XYZ
 
-  $db.dispose;
 }

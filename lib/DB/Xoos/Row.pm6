@@ -32,6 +32,7 @@ submethod BUILD (:$!driver, :$!db, :$!quote, :%field-data, :$!model, :$!is-dirty
       self.get-column($key);
     }) unless self.^can($key);
   }
+  print "\n";
 
   @!relations = $!model.relations if $!model.^can('relations');
   for @!relations -> $rel {
@@ -40,7 +41,8 @@ submethod BUILD (:$!driver, :$!db, :$!quote, :%field-data, :$!model, :$!is-dirty
       self.get-relation($key, :spec($spec));
     }) unless self.^can($key);
   }
-  warn 'Erroneous field data provided to row, either the model definition is incorrect or something is passing bad data (keys: '~%fd.keys.join(', ')~')'
+
+  warn 'Erroneous field data provided to row ('~self.^name~'), either the model definition is incorrect or something is passing bad data (keys: '~%fd.keys.join(', ')~')'
     if %fd.keys.elems;
 }
 
@@ -107,9 +109,13 @@ method get-relation(Str $column, :%spec?) {
       %filter{$r.value} = %!field-data{$r.key};
     }
   }
+  say "model: %meta<model>\n\$!model: {$!model.^name}";
+  say "got: {self.dbo.model(%meta<model>).^name}";
   my $query = self.dbo.model(%meta<model>).search(%filter);
+  say $query.first.perl;
   return $query.first
-    if %meta<has-one>;
+    if %meta<has-one> && $query.count;
+  say 'q';
   $query;
 }
 
@@ -139,9 +145,13 @@ method update {
       my $new-id = $!model.insert(%field-data);
       my $key    = @keys.grep({ $_.value<auto-increment>//False })[0].key // Nil;
       if $!driver eq 'SQLite' && @keys.grep({ $_.value<auto-increment>//False }) {
-        $new-id = $!db.prepare('select last_insert_rowid() as nid;');
-        $new-id.execute;
-        $new-id = $new-id.row(:hash)<nid>;
+        if $!db.^can('prepare') {
+          $new-id = $!db.prepare('select last_insert_rowid() as nid;');
+          $new-id.execute;
+          $new-id = $new-id.row(:hash)<nid>;
+        } else {
+          $new-id = $!db.query('select last_insert_rowid() as nid;').array[0];
+        }
       } elsif $!driver eq 'Pg' && $key {
         my %params = @!columns.grep({
           $_.value<unique> && !$_.value<is-primary-key>

@@ -89,3 +89,7 @@ method model(Str $model-name, Str :$module?) {
   }
   %!cache{$model-name};
 }
+
+method loaded-models {
+  %!cache.keys;
+}

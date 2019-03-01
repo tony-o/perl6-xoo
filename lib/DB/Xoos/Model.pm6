@@ -67,8 +67,11 @@ method table-name { $!table-name; }
 method db         { $!db; }
 method dbo        { $!dbo; }
 method driver     { $!driver; }
-method row        { $!row-class; }
+method row        { "row: {$!row-class.^name} from: {self.^name} ".say; $!row-class; }
 method new-row($field-data?) {
+  say '72';
+  say self.^name;
+  say self.row.^name;
   my %field-data = $field-data ?? ($field-data ~~ Block ?? $field-data.() !! $field-data) !! ();
   self.row.new(:%field-data, :driver(self.driver), :db(self.db), :model(self), dbo => self.dbo, :is-dirty(True));
 }

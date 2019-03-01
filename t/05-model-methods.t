@@ -5,7 +5,7 @@ use lib 't/lib';
 use DB::Xoos::SQLite;
 use Test;
 use DB::Xoos::Test;
-use DBIish;
+use DB::SQLite;
 
 plan 6;
 
@@ -15,7 +15,8 @@ my $cwd = $*CWD;
 $*CWD = 't'.IO;
 
 my DB::Xoos::SQLite $d .=new;
-my $db     = DBIish.connect('SQLite', database => 'test.sqlite3');
+my $db     = DB::SQLite(database => 'test.sqlite3');
+$db.connect;
 
 $d.connect(:$db, :options({
   prefix => 'X',
