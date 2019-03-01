@@ -28,6 +28,7 @@ jobs:
               git clone https://github.com/ugexe/zef.git $HOME/zef
               cd $HOME/zef
               perl6 -Ilib bin/zef install .
+              eval 'export PATH="$HOME/.perl6/bin:$PATH"'
               cd "$PWD"
               zef install --deps-only .
               zef test .
