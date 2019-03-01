@@ -23,8 +23,8 @@ jobs:
               export RPWD=`pwd`
               mkdir $HOME/bin
               eval 'export PATH="$HOME/bin:$PATH"'
-              git clone https://github.com/rakudo/rakudo $HOME/rak
-              cd $HOME/rak
+              #git clone https://github.com/rakudo/rakudo $HOME/rak
+              #cd $HOME/rak
               #perl Configure.pl --gen-moar --gen-nqp --backends=moar --prefix=$HOME
               #make
               #sudo make install
