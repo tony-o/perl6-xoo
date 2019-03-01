@@ -23,7 +23,6 @@ jobs:
               export RPWD=`pwd`
               mkdir $HOME/bin
               eval 'export PATH="$HOME/bin:$PATH"'
-              ssh-keygen -f id_rsa -t rsa -N ''
               git clone https://github.com/rakudo/rakudo $HOME/rak
               cd $HOME/rak
               perl Configure.pl --gen-moar --gen-nqp --backends=moar --prefix=$HOME
