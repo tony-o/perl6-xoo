@@ -17,17 +17,17 @@ jobs:
           command: |
               ssh-keygen -f id_rsa -t rsa -N ''
               git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
-              echo 'export PATH="~/.rakudobrew/bin:$PATH"' >> ~/.bashrc
+              eval 'export PATH="~/.rakudobrew/bin:$PATH"'
               rakudobrew init
               rakudobrew build moar
               rakudobrew build zef
       - run:
           name: build module deps
           command: |
-              echo 'export PATH="~/.rakudobrew/bin:$PATH"' >> ~/.bashrc
+              eval 'export PATH="~/.rakudobrew/bin:$PATH"'
               zef install --deps-only .
       - run:
           name: test module
           command: |
-              echo 'export PATH="~/.rakudobrew/bin:$PATH"' >> ~/.bashrc
+              eval 'export PATH="~/.rakudobrew/bin:$PATH"'
               zef test .
