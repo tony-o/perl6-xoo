@@ -10,11 +10,11 @@ jobs:
       - checkout
       - run:
         command: |
-          sudo apt install -y libsqlite3-dev
-          git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
-          eval 'export PATH="~/.rakudobrew/bin:$PATH"' ; echo $PATH
-          rakudobrew init
-          rakudobrew build moar
-          rakudobrew build zef
-          zef install --deps-only .
-          zef test .
+            sudo apt install -y libsqlite3-dev
+            git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
+            eval 'export PATH="~/.rakudobrew/bin:$PATH"' ; echo $PATH
+            rakudobrew init
+            rakudobrew build moar
+            rakudobrew build zef
+            zef install --deps-only .
+            zef test .
