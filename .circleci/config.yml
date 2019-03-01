@@ -52,17 +52,17 @@ jobs:
             - build
   publish_docker:
     machine: true
-      steps:
-        - attach_workspace:
-            at: /tmp/workspace
-        - run: |
-            cd /tmp/workspace/distribution-scripts
-            source ./build.env
-            gunzip -c /tmp/workspace/build/docker-${CRYSTAL_VERSION}.tar.gz | docker image load
-            gunzip -c /tmp/workspace/build/docker-${CRYSTAL_VERSION}-build.tar.gz | docker image load
-            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-            docker push ${DOCKER_REPOSITORY}:${DOCKER_TAG}
-            docker push ${DOCKER_REPOSITORY}:${DOCKER_TAG}-build
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run: |
+          cd /tmp/workspace/distribution-scripts
+          source ./build.env
+          gunzip -c /tmp/workspace/build/docker-${CRYSTAL_VERSION}.tar.gz | docker image load
+          gunzip -c /tmp/workspace/build/docker-${CRYSTAL_VERSION}-build.tar.gz | docker image load
+          docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+          docker push ${DOCKER_REPOSITORY}:${DOCKER_TAG}
+          docker push ${DOCKER_REPOSITORY}:${DOCKER_TAG}-build
 
 workflows:
   version: 2
