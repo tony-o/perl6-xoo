@@ -36,6 +36,7 @@ jobs:
               #echo "installed to $BP"
               #eval 'export PATH="$BP:$PATH"'
               cd "$RPWD"
+              docker build .
   publish_docker:
     machine: true
     steps:
