@@ -15,7 +15,7 @@ jobs:
       - run:
           name: install perl6
           command: |
-              export PWD=`pwd`
+              export RPWD=`pwd`
               mkdir $HOME/bin
               eval 'export PATH="$HOME/bin:$PATH"'
               ssh-keygen -f id_rsa -t rsa -N ''
@@ -29,6 +29,8 @@ jobs:
               cd $HOME/zef
               perl6 -Ilib bin/zef install .
               eval 'export PATH="$HOME/.perl6/bin:$PATH"'
-              cd "$PWD"
+              echo "cd "'"'"$RPWD"'"'
+              cd "$RPWD"
+              echo 'testing...';
               zef install --deps-only .
               zef test .
