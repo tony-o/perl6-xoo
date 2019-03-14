@@ -1,6 +1,6 @@
 {
   "name"        : "DB::Xoos",
-  "version"     : "0.0.10",
+  "version"     : "0.0.11",
   "perl"        : "6",
   "description" : "An ORM, with support.",
   "auth"        : "github:tony-o",
