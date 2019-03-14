@@ -6,7 +6,7 @@
   "auth"        : "github:tony-o",
   "authors"     : [ "Tony O'Dell" ],
   "depends"     : ["DB"],
-  "test-depends": ["DB::SQLite"],
+  "test-depends": ["DB::SQLite", "DBIish"],
   "license"     : "Artistic-2.0",
   "provides"    : {
     "DB::Xoos": "lib/DB/Xoos.pm6",

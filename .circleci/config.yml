@@ -2,8 +2,6 @@ defaults:
   steps:
     - checkout
     - run: tagged_release
-#    - run: bin/ci build_perl6
-#    - run: bin/ci publish_docker
 version: 2
 jobs:
   build:
@@ -17,7 +15,7 @@ jobs:
       - run: 
           name: install build deps
           command: |
-              apt install -y libsqlite3-dev git
+              apt install -y libsqlite3-dev
               zef install --deps-only .
       - run:
           name: test 
