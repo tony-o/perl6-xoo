@@ -8,7 +8,7 @@ version: 2
 jobs:
   build_perl6:
     docker:
-      - image: circleci/buildpack-deps:19.04
+      - image: tonyodell/rakudo-nightly:test2
     
     working_directory: ~
 
@@ -18,40 +18,8 @@ jobs:
           name: install build deps
           command: |
               sudo apt install -y libsqlite3-dev git
+              zef install --deps-only .
       - run:
-          name: install perl6
+          name: test 
           command: |
-              export RPWD=`pwd`
-              mkdir $HOME/bin
-              eval 'export PATH="$HOME/bin:$PATH"'
-              #git clone https://github.com/rakudo/rakudo $HOME/rak
-              #cd $HOME/rak
-              #perl Configure.pl --gen-moar --gen-nqp --backends=moar --prefix=$HOME
-              #make
-              #sudo make install
-              cd $HOME
-              #git clone https://github.com/ugexe/zef.git $HOME/zef
-              #cd $HOME/zef
-              #export BP=`perl6 -Ilib bin/zef install . | grep -A 1 'bin/ script' | tail -n 1`
-              #echo "installed to $BP"
-              #eval 'export PATH="$BP:$PATH"'
-              cd "$RPWD"
-              docker build .
-  publish_docker:
-    machine: true
-    steps:
-      - attach_workspace:
-          at: /tmp/workspace
-      - run: |
-          docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-          docker push zefbuilds/rakudo:test
-          docker push zefbuilds/rakudo:test-build
-
-workflows:
-  version: 2
-  tagged_release:
-    jobs:
-      - build_perl6
-      - publish_docker
-      #    requires:
-      #      - dist_docker
+              zef test .
