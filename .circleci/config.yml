@@ -17,7 +17,7 @@ jobs:
       - run: 
           name: install build deps
           command: |
-              sudo apt install -y libsqlite3-dev git
+              apt install -y libsqlite3-dev git
               zef install --deps-only .
       - run:
           name: test 
