@@ -4,7 +4,7 @@ Xoos is an ORM designed for convenience and ease of use, it is modeled after DBI
 
 (This module was originally named Koos until my friends in Israel let me know that that's a vulgar word in Arabic)
 
-[![Build Status](https://travis-ci.org/tony-o/perl6-xoo.svg?branch=master)](https://travis-ci.org/tony-o/perl6-xoo)
+[![CircleCI](https://circleci.com/gh/tony-o/perl6-xoo.svg?style=svg)](https://circleci.com/gh/tony-o/perl6-xoo)
 
 ## what works
 

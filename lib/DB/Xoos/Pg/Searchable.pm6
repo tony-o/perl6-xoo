@@ -42,9 +42,7 @@ method all(%filter?) {
   die 'Please connect to a database first'
     unless self.^can('db');
   my %query = $.sql;
-  my $sth   = self.db.prepare(%query<sql>);
-  $sth.execute(|%query<params>);
-  my @rows  = $sth.allrows(:array-of-hash);
+  my @rows  = self.db.query(%query<sql>, |%query<params>).hashes;
   my @rtv;
   for @rows -> $row {
     #inflate to model
@@ -67,10 +65,9 @@ method first(%filter?, :$next = False) {
   die 'Please connect to a database first'
     unless self.^can('db');
   my %query = $.sql;
-  my $sth   = $next && $!first-next ?? $!first-next !! self.db.prepare(%query<sql>);
-  $sth.execute(|%query<params>);
+  my $sth   = $next && $!first-next ?? $!first-next !! self.db.query(%query<sql>, |%query<params>);
   $!first-next := $sth;
-  my $row   = $sth.row(:hash);
+  my $row   = $sth.hash;
   return Nil unless $row.keys.elems;
   my $new-model;
   try {
@@ -94,10 +91,9 @@ method count(%filter?) {
   die 'Please connect to a database first'
     unless self.^can('db');
   my %query = $.sql(field-override => 'count(*) cnt');
-  my $sth   = self.db.prepare(%query<sql>);
-  $sth.execute(|%query<params>);
-  my @rows  = $sth.allrows(:array-of-hash);
-  @rows[0]<cnt> // 0;
+  my $sth   = self.db.query(%query<sql>, |%query<params>);
+  my $rows  = $sth.hash;
+  $rows<cnt> // 0;
 }
 
 method update(%values, %filter?) {
@@ -106,8 +102,7 @@ method update(%values, %filter?) {
   die 'Please connect to a database first'
     unless self.^can('db');
   my %query = $.sql(:update, :update-values(%values));
-  my $sth   = self.db.prepare(%query<sql>);
-  $sth.execute(|%query<params>);
+  my $sth   = self.db.query(%query<sql>, |%query<params>);
 }
 
 method delete(%filter?) {
@@ -116,16 +111,14 @@ method delete(%filter?) {
   die 'Please connect to a database first'
     unless self.^can('db');
   my %query = $.sql(:delete);
-  my $sth   = self.db.prepare(%query<sql>);
-  $sth.execute(|%query<params>);
+  my $sth   = self.db.prepare(%query<sql>, |%query<params>);
 }
 
 method insert(%field-data) {
   die 'Please connect to a database first'
     unless self.^can('db');
   my %query = $.sql(:insert, :update-values(%field-data));
-  my $sth   = self.db.prepare(%query<sql>);
-  $sth.execute(|%query<params>);
+  my $sth   = self.db.prepare(%query<sql>, |%query<params>);
   Nil;
 }
 

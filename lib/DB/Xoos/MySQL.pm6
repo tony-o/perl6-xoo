@@ -2,7 +2,7 @@ use DB::Xoos;
 unit class DB::Xoos::MySQL does DB::Xoos;
 
 use DB::Xoos::DSN;
-use DBIish;
+use DB::MySQL;
 
 multi method connect(Any:D: :$db, :%options) {
   $!db     = $db;
@@ -24,7 +24,8 @@ multi method connect(Str:D $dsn, :%options) {
   %db-opts<user>     = %connect-params<user> if %connect-params<user>;
   %db-opts<password> = %connect-params<pass> if %connect-params<pass>;
 
-  $db = DBIish.connect('Pg', |%db-opts);
+  $db = DB::MySQL.new(|%db-opts);
+  $db.connect;
 
   self.connect(
     :$db,
