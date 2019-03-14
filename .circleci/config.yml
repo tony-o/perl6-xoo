@@ -6,7 +6,7 @@ defaults:
 #    - run: bin/ci publish_docker
 version: 2
 jobs:
-  build_perl6:
+  build:
     docker:
       - image: tonyodell/rakudo-nightly:test2
     
