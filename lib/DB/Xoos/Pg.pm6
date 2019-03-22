@@ -25,8 +25,14 @@ multi method connect(Str:D $dsn, :%options) {
   %db-opts<user>     = %connect-params<user> if %connect-params<user>;
   %db-opts<password> = %connect-params<pass> if %connect-params<pass>;
 
-  $db = DB::Pg.new('Pg', |%db-opts);
-  $db.connect;
+  my $conninfo = join " ",
+    ('dbname=' ~ %db-opts<database>),
+    ('host=' ~ %db-opts<host>),
+    ('user=' ~ %db-opts<user> if %db-opts<user>.defined),
+    ('pass=' ~ %db-opts<password> if %db-opts<password>.defined);
+
+  say $conninfo;
+  $db = DB::Pg.new(:$conninfo);
 
   self.connect(
     :$db
