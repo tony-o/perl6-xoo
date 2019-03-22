@@ -22,7 +22,7 @@ my $cwd = $*CWD;
 $*CWD = 't'.IO;
 
 my DB::Xoos::SQLite $d .=new;
-my $db     = DBIish.connect('SQLite', database => 'test.sqlite3');
+my $db     = get-sqlite;
 
 $d.connect(:$db, :options({
   model-dirs => [qw<models>],

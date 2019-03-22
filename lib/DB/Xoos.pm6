@@ -34,7 +34,7 @@ method load-models(@model-dirs?) {
       %!cache{$mod-name.split('::')[*-1]} = $m.new(:$!driver, :$!db, :$!prefix, dbo => self);
       CATCH {
         default {
-          warn $_.backtrace.full;
+          warn "error loading $mod-name\n" ~ $_.Str;
         }
       }
     }
