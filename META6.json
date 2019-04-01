@@ -18,6 +18,7 @@
     "DB::Xoos::Oracle::Searchable": "lib/DB/Xoos/Oracle/Searchable.pm6",
     "DB::Xoos::Pg": "lib/DB/Xoos/Pg.pm6",
     "DB::Xoos::Pg::Searchable": "lib/DB/Xoos/Pg/Searchable.pm6",
+    "DB::Xoos::Pg::Dynamic": "lib/DB/Xoos/Pg/Dynamic.pm6",
     "DB::Xoos::Row": "lib/DB/Xoos/Row.pm6",
     "DB::Xoos::SQLite": "lib/DB/Xoos/SQLite.pm6",
     "DB::Xoos::SQLite::Searchable": "lib/DB/Xoos/SQLite/Searchable.pm6",
