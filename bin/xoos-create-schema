@@ -1,0 +1,19 @@
+#!/usr/bin/env perl6
+
+use DB::Xoos::DSN;
+
+multi MAIN(Str:D :$dsn, Bool :$dry-run = False, Str:D :$output, :$table? = []) {
+  my $parsed-dsn = parse-dsn($dsn);
+  my $module     = "DB::Xoos::{$parsed-dsn<driver>.tc}::Dynamic";
+
+  CATCH { default { .say; } }
+
+  require ::($module) <&generate-structure>;
+
+  my %yaml = generate-structure(:$dsn, :$dry-run, :tables(|$table)); 
+
+  use Data::Dump;
+  say Dump %yaml;
+}
+
+# vi:syntax=perl6

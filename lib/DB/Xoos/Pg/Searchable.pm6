@@ -138,7 +138,7 @@ method sql($page-start?, $page-size?, :$field-override = Nil, :$update = False, 
     $sql  = 'INSERT INTO ';
     $sql ~= self!gen-table(:for-update);
     $sql ~= ' ('~self!gen-field-ins(%update-values)~') ';
-    $sql ~= 'VALUES ('~('?'x@*params.elems).split('', :skip-empty).join(', ')~')';
+    $sql ~= 'VALUES ('~(0..@*params.elems).map({ '$' ~ $_ }).join(', ')~')';
   } else {
     $sql = 'SELECT ';
     if $field-override {
@@ -187,7 +187,7 @@ method !gen-quote(\val, $force = False, :$table) {
     return self!gen-id(val, :$table);
   } else {
     push @*params, val;
-    return '?';
+    return '$' ~ @*params.elems;
   }
 }
 
