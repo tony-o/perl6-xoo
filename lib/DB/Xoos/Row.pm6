@@ -135,7 +135,7 @@ method update {
             @keys.map({ "{$_.key} => '{%filter{$_.key}}'" }).join(', ') ~
             ") in {$anon ?? (self.model.^name.subst(/'Model'/, 'Row') ~ ' (anon)') !! self.^name}";
         }
-        die $_;
+        .rethrow;
       };
       my $new-id = $!model.insert(%field-data);
       my $key    = @keys.grep({ $_.value<auto-increment>//False })[0].key // Nil;

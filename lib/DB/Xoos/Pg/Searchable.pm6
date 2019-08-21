@@ -111,14 +111,14 @@ method delete(%filter?) {
   die 'Please connect to a database first'
     unless self.^can('db');
   my %query = $.sql(:delete);
-  my $sth   = self.db.prepare(%query<sql>, |%query<params>);
+  my $sth   = self.db.query(%query<sql>, |%query<params>);
 }
 
 method insert(%field-data) {
   die 'Please connect to a database first'
     unless self.^can('db');
   my %query = $.sql(:insert, :update-values(%field-data));
-  my $sth   = self.db.prepare(%query<sql>, |%query<params>);
+  my $sth   = self.db.query(%query<sql>, |%query<params>);
   Nil;
 }
 
@@ -138,7 +138,7 @@ method sql($page-start?, $page-size?, :$field-override = Nil, :$update = False, 
     $sql  = 'INSERT INTO ';
     $sql ~= self!gen-table(:for-update);
     $sql ~= ' ('~self!gen-field-ins(%update-values)~') ';
-    $sql ~= 'VALUES ('~(0..@*params.elems).map({ '$' ~ $_ }).join(', ')~')';
+    $sql ~= 'VALUES ('~(1..@*params.elems).map({ '$' ~ $_ }).join(', ')~')';
   } else {
     $sql = 'SELECT ';
     if $field-override {
