@@ -1,0 +1,22 @@
+{
+  "name"        : "DB::Xoos",
+  "version"     : "0.1.0",
+  "perl"        : "6",
+  "description" : "An ORM, with support (and no meta model syntax).",
+  "auth"        : "github:tony-o",
+  "authors"     : [ "Tony O'Dell" ],
+  "depends"     : [ ],
+  "test-depends": [ ],
+  "license"     : "Artistic-2.0",
+  "provides"    : {
+    "DB::Xoos": "lib/DB/Xoos.pm6",
+    "DB::Xoos::DSN": "lib/DB/Xoos/DSN.pm6",
+    "DB::Xoos::Role::Model": "lib/DB/Xoos/Role/Model.pm6",
+    "DB::Xoos::Role::Row": "lib/DB/Xoos/Role/Row.pm6",
+    "DB::Xoos::Role::Cache": "lib/DB/Xoos/Role/Cache.pm6",
+    "DB::Xoos::Role::DynamicLoader": "lib/DB/Xoos/Role/DynamicLoader.pm6",
+    "DB::Xoos::Role::Searchable": "lib/DB/Xoos/Role/Searchable.pm6"
+  },
+  "tags": [ "ORM", "DB", "database", "model", "relational", "object", "relationship", "mapping"],
+  "source-url"  : "git://github.com/tony-o/perl6-xoo.git"
+}
