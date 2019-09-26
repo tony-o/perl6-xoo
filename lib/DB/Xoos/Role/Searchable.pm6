@@ -9,6 +9,7 @@ method search(|) {...}
 method first(|) {...}
 method last(|) {...}
 method all(|) {...}
+method insert(|) {...}
 method next(|) {...}
 method count(|) {...}
 method update(|) {...}

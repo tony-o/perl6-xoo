@@ -42,7 +42,7 @@ method !from-structure($mod) {
     :name<@.relations>, :has_accessor(1), :type(Array), :package($model-class.WHAT),
   ));
 
-  try $model-class.HOW.compose($model-class);
+  $model-class.HOW.compose($model-class);
   
   my $model = $model-class.new(
     columns => [ $mod<columns>.keys.map({
