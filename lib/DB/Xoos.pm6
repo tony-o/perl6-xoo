@@ -6,8 +6,8 @@ has $!prefix = '';
 
 submethod BUILD(:$!prefix) { }
 
-multi method connect(Any:D :$db, :%options) {*}
-multi method connect(Str:D $dsn, :%options) {*}
+multi method connect(Any:D :$db, :%options) {...}
+multi method connect(Str:D $dsn, :%options) {...}
 
 method model(Str $model-name, Str :$module?) {
   if self!get-cache($model-name).defined {

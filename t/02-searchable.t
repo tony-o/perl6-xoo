@@ -1,6 +1,8 @@
 use DB::Xoos::Role::Searchable;
 use Test;
 
+plan 1;
+
 subtest {
   my class XX does DB::Xoos::Role::Searchable {
     method search { };

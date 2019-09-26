@@ -10,7 +10,7 @@
   "license"     : "Artistic-2.0",
   "provides"    : {
     "DB::Xoos": "lib/DB/Xoos.pm6",
-    "DB::Xoos::DSN": "lib/DB/Xoos/DSN.pm6",
+    "DB::Xoos::Util::DSN": "lib/DB/Xoos/Util/DSN.pm6",
     "DB::Xoos::Role::Model": "lib/DB/Xoos/Role/Model.pm6",
     "DB::Xoos::Role::Row": "lib/DB/Xoos/Role/Row.pm6",
     "DB::Xoos::Role::Cache": "lib/DB/Xoos/Role/Cache.pm6",

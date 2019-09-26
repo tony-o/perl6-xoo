@@ -6,9 +6,11 @@ submethod TWEAK(|) {
   if $row-class ~~ Str {
     $!row = ::($row-class).new(:model(self));
   } elsif Any !~~ $row-class {
-    $!row = $row-class.new(:model(self));
+    $!row := $row-class.new(:model(self));
   }
 }
+
+method table-name { $table-name; }
 
 method row {
   $!row ?? $!row !! Nil;

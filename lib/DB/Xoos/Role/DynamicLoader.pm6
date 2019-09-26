@@ -25,15 +25,25 @@ method !from-structure($mod) {
     @model-attributes.push($row-class);
   };
 
-  my $model-class := Metamodel::ClassHOW.new_type(:name('DB::Xoos::Model::'~$name));
-  $model-class.^add_role(DB::Xoos::Role::Model[|@model-attributes]);
-  try $model-class.HOW.add_attribute($model-class, Attribute.new(
+  my $model-class;
+  for self!get-cache-keys -> $k {
+    last unless $mod<table>;
+    if (self!get-cache($k).table-name//'') eq $mod<table> {
+      $model-class := self!get-cache($k);
+    }
+  }
+  $model-class //= Metamodel::ClassHOW.new_type(:name('DB::Xoos::Model::'~$name));
+  $model-class.^add_role(DB::Xoos::Role::Model[|@model-attributes])
+    if $model-class !~~ DB::Xoos::Role::Model;
+  $model-class.HOW.add_attribute($model-class, Attribute.new(
     :name<@.columns>, :has_accessor(1), :type(Array), :package($model-class.WHAT),
   ));
-  try $model-class.HOW.add_attribute($model-class, Attribute.new(
+  $model-class.HOW.add_attribute($model-class, Attribute.new(
     :name<@.relations>, :has_accessor(1), :type(Array), :package($model-class.WHAT),
   ));
-  $model-class.HOW.compose($model-class);
+
+  try $model-class.HOW.compose($model-class);
+  
   my $model = $model-class.new(
     columns => [ $mod<columns>.keys.map({
       $_ => $mod<columns>{$_}
@@ -43,7 +53,7 @@ method !from-structure($mod) {
     }) ],
   );
 
-  self!set-cache($name, $model);
+  self!set-cache($name, $model, :overwrite);
 
   $model;
 }
@@ -52,11 +62,12 @@ method load-models(@model-dirs?, :%dynamic?) {
   my $base = (self.^can('prefix') && self.prefix) // try { $?CALLER::CLASS.^name } // '';
   my @possible = try {
     CATCH { default { .say unless @model-dirs.elems; } }
-    "lib/{$base eq '' ?? '' !! ($base.subst('::', '/') ~ '/')}Model".IO.dir.grep(
-      * ~~ :f && *.extension eq 'pm6'
-    ) if "lib/{$base eq '' ?? '' !! ($base.subst('::', '/') ~ '/')}Model".IO ~~ :d;
+    do for ['./', |@model-dirs] -> $dir {
+      "$dir/lib/{$base eq '' ?? '' !! ($base.subst('::', '/') ~ '/')}Model".IO.dir.grep(
+        * ~~ :f && *.extension eq 'pm6'
+      ) if "$dir/lib/{$base eq '' ?? '' !! ($base.subst('::', '/') ~ '/')}Model".IO ~~ :d;
+    }
   };
-
   for @possible -> $f {
     next unless $f.index("lib/$base") !~~ Nil;
     my $mod-name = $f.path.substr($f.index("lib/$base")+4, $f.rindex('.') - $f.index("lib/$base") - 4);
@@ -73,17 +84,17 @@ method load-models(@model-dirs?, :%dynamic?) {
   }
   if @model-dirs.elems {
     my $no-yaml = (try require ::('YAML::Parser::LibYAML')) === Nil;
-    warn 'Cannot find YAML::Parser::LibYAML when attempting to load yaml models'
-      if $no-yaml;
-    unless $no-yaml {
-      my $parser = ::('YAML::Parser::LibYAML::EXPORT::DEFAULT::&yaml-parse');
-      for @model-dirs -> $dir {
-        my @files = $dir.IO.dir;
-        for @files -> $fil {
-          next if $fil !~~ :f || $fil.extension ne 'yaml';
-          my $mod = $parser.($fil.relative);
-          self!from-structure($mod);
-        }
+    my $warned = 0;
+    my $parser = ::('YAML::Parser::LibYAML::EXPORT::DEFAULT::&yaml-parse') // sub { };
+    for @model-dirs -> $dir {
+      my @files = $dir.IO.dir;
+      for @files -> $fil {
+        next if $fil !~~ :f || $fil.extension ne 'yaml';
+        warn 'Cannot find YAML::Parser::LibYAML when attempting to load yaml models'
+          if $no-yaml;
+        last if $no-yaml;
+        my $mod = $parser.($fil.relative);
+        self!from-structure($mod);
       }
     }
   }

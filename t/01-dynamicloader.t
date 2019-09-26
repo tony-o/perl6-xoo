@@ -4,8 +4,12 @@ use lib 't/lib';
 use Row1;
 use Test;
 
+plan 3;
+
 subtest {
   my class TestDL does DB::Xoos::Role::DynamicLoader {
+    multi method connect(Any:D :$db, :%options, *%_) { '' }
+    multi method connect(Str:D $dsn, :%options, *%_) { '' }
     method test1 {
       my $model = self!from-structure({
         name => 'test1',
@@ -43,7 +47,10 @@ subtest {
 }, 'Dynamic loader from structure';
 
 subtest {
-  my class TestDL does DB::Xoos { };
+  my class TestDL does DB::Xoos {
+    multi method connect(Any:D :$db, :%options) { '' }
+    multi method connect(Str:D $dsn, :%options) { '' }
+  };
   my $test = TestDL.new(:prefix(''));
   $test.model('M1');
   ok $test.loaded-models.elems == 1, 'loaded M1';
@@ -58,7 +65,10 @@ subtest {
 try require ::('YAML::Parser::LibYAML');
 subtest {
   if ::('YAML::Parser::LibYAML') !~~ Failure {
-    my class TestDL does DB::Xoos { };
+    my class TestDL does DB::Xoos {
+      multi method connect(Any:D :$db, :%options) { '' }
+      multi method connect(Str:D $dsn, :%options) { '' }
+    };
     my $test = TestDL.new;
     $test.load-models(['t/models']);
     ok $test.loaded-models.elems == 2, 'loaded two yaml models';
