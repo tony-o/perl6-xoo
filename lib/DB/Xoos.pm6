@@ -1,17 +1,17 @@
 use DB::Xoos::Role::DynamicLoader;
 unit role DB::Xoos does DB::Xoos::Role::DynamicLoader;
 
-has $!db;
+has $.db;
 has $!prefix = '';
 
-submethod BUILD(:$!prefix) { }
+#multi submethod BUILD(:$!prefix, :$!db) { }
 
-multi method connect(Any:D :$db, :%options) {...}
-multi method connect(Str:D $dsn, :%options) {...}
+multi method connect(Any:D :$!db, :%options?) {...}
+multi method connect(Str:D $dsn, :%options?) {...}
 
 method model(Str $model-name, Str :$module?) {
   if self!get-cache($model-name).defined {
-    return self!get-cache($model-name);
+    return self!get-cache($model-name).clone;
   }
   my $prefix = $!prefix // try { $?OUTER::CLASS.^name; } // '';
   my $model  = $module.defined ?? $module !! "{$prefix ne '' ?? "$prefix\::" !! ''}Model\::$model-name";
@@ -22,16 +22,16 @@ method model(Str $model-name, Str :$module?) {
     return Nil;
   }
   $row .=subst(/^'Model::'/, 'Row::');
-  $model = (require ::("$model")).new;
+  $model = (require ::("$model")).new(db => $!db);
   try require ::($row);
   if ::($row) ~~ Failure {
-    $row = (class :: does DB::Xoos::Role::Row { }).new(:$model);
+    $row = (class :: does DB::Xoos::Role::Row { }).new(:$model, :$!db);
   } else {
-    $row = ::($row).new(:$model);
+    $row = ::($row).new(:$model, :$!db);
   }
   $model.set-row-class($row) if $model.row ~~ Nil;
   self!set-cache($model-name, $model);
-  self!get-cache($model-name);
+  self!get-cache($model-name).clone;
 }
 
 method loaded-models { self!get-cache-keys; }

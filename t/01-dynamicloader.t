@@ -8,8 +8,8 @@ plan 3;
 
 subtest {
   my class TestDL does DB::Xoos::Role::DynamicLoader {
-    multi method connect(Any:D :$db, :%options, *%_) { '' }
-    multi method connect(Str:D $dsn, :%options, *%_) { '' }
+    multi method connect(Any:D :$db, :%options?, *%_) { '' }
+    multi method connect(Str:D $dsn, :%options?, *%_) { '' }
     method test1 {
       my $model = self!from-structure({
         name => 'test1',
@@ -48,15 +48,17 @@ subtest {
 
 subtest {
   my class TestDL does DB::Xoos {
-    multi method connect(Any:D :$db, :%options) { '' }
-    multi method connect(Str:D $dsn, :%options) { '' }
+    multi method connect(Any:D :$!db, :%options?) { $!db = 'test'; }
+    multi method connect(Str:D $dsn, :%options?) { $!db = 'test'; }
   };
   my $test = TestDL.new(:prefix(''));
+  $test.connect('');
   $test.model('M1');
   ok $test.loaded-models.elems == 1, 'loaded M1';
   ok $test.model('M1').XX == 42, 'XX callable on model';
   ok $test.model('M1').row.^name eq 'Row::M1', 'Loaded correct row class (GOT:'~$test.model('M1').row.^name~')';
   ok $test.model('M1').row.XX == 42, 'Row can access model';
+  is $test.model('M1').db, 'test', 'Test model gets correct db';
   $test.model('R1');
   ok $test.model('R1').row.^name ~~ /'anon'/, 'R1 has anonymous class';
   ok $test.loaded-models.elems == 2, 'R1 & M1 still cached';
@@ -66,7 +68,7 @@ try require ::('YAML::Parser::LibYAML');
 subtest {
   if ::('YAML::Parser::LibYAML') !~~ Failure {
     my class TestDL does DB::Xoos {
-      multi method connect(Any:D :$db, :%options) { '' }
+      multi method connect(Any:D :$!db, :%options) { '' }
       multi method connect(Str:D $dsn, :%options) { '' }
     };
     my $test = TestDL.new;

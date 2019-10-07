@@ -1,13 +1,16 @@
 unit role DB::Xoos::Role::Searchable;
 
 has $!filter;
+has $!option;
 
 multi submethod BUILD(:$!filter = { }) { }
-method !filter {$!filter;}
+method !filter {$!filter//{};}
+method !option {$!option//{};}
+method !set-filter($filter) { $!filter = $filter; }
+method !set-option($option) { $!option = $option; }
 
 method search(|) {...}
 method first(|) {...}
-method last(|) {...}
 method all(|) {...}
 method insert(|) {...}
 method next(|) {...}

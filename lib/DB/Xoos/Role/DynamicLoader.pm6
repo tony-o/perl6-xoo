@@ -7,7 +7,7 @@ method !from-structure($mod) {
   my $name = $mod<name>//$mod<table>;
   my @model-attributes;
   my $row-class;
-  
+
   @model-attributes.push($mod<name>.lc) unless $mod<table>;
   @model-attributes.push($mod<table>) if $mod<table>;
   try {
@@ -22,6 +22,9 @@ method !from-structure($mod) {
     die '' unless $mod<row-class>;
     require ::($mod<row-class>.Str);
     $row-class = ::($mod<row-class>.Str); 
+    $row-class does DB::Xoos::Role::Row
+      unless $row-class ~~ DB::Xoos::Role::Row;
+    say 'does';
     @model-attributes.push($row-class);
   };
 
@@ -45,13 +48,16 @@ method !from-structure($mod) {
   $model-class.HOW.compose($model-class);
   
   my $model = $model-class.new(
-    columns => [ $mod<columns>.keys.map({
+    columns => [ $mod<columns>.defined ?? $mod<columns>.keys.map({
       $_ => $mod<columns>{$_}
-    }) ],
-    relations => [ $mod<relations>.keys.map({
+    }) !! () ],
+    relations => [ $mod<relations>.defined ?? $mod<relations>.keys.map({
       $_ => $mod<relations>{$_}
-    }) ],
+    }) !! () ]
   );
+  die 'Model must provide .columns' unless $model.^can('columns');
+  $model.set-db(db => self.db) if self.^can('db');
+  $model.set-row-class($row-class.new(:model($model)));
 
   self!set-cache($name, $model, :overwrite);
 

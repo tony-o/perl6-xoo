@@ -1,6 +1,7 @@
 unit role DB::Xoos::Role::Model[$table-name, $row-class?];
 
 has $!row;
+has $.db;
 
 submethod TWEAK(|) {
   if $row-class ~~ Str {
@@ -17,5 +18,7 @@ method row {
 }
 
 method set-row-class($row) {
-  $!row = $row;
+  $!row := $row;
 }
+
+method set-db(:$!db) { };

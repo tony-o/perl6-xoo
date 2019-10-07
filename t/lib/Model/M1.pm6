@@ -2,7 +2,7 @@ use DB::Xoos::Role::Model;
 
 unit class Model::M1 does DB::Xoos::Role::Model['m1'];
 
-has @!columns =
+has @.columns =
    id => {
     type => 'integer',
     nullable => False,
