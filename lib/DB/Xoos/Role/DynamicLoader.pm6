@@ -76,7 +76,7 @@ method load-models(@model-dirs?, :%dynamic?) {
   };
   for @possible -> $f {
     next unless $f.index("lib/$base") !~~ Nil;
-    my $mod-name = $f.path.substr($f.index("lib/$base")+4, $f.rindex('.') - $f.index("lib/$base") - 4);
+    my $mod-name = $f.path.substr($f.index("lib/$base")+4, $f.rindex('.') - $f.index("lib/$base") - 8);
     $mod-name .=subst(/^^(\/|\\)/, '');
     $mod-name .=subst(/(\/|\\)/, '::', :g);
     try {
