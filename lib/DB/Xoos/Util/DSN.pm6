@@ -12,7 +12,7 @@ grammar dsn {
   }
 
   token auth {
-    <user> ':' <pass> '@'
+    <user> (':' <pass>) ** 0..1 '@'
   }
 
   token user {
@@ -44,7 +44,7 @@ grammar dsn {
 
 sub default-ports (Str:D $driver) {
   return 3306 if $driver eq 'mysql';
-  return 5432 if $driver eq 'pg';
+  return 5432 if $driver eq ('pg'|'postgresql');
   return Nil  if $driver eq 'sqlite';
   return Nil;
 }
