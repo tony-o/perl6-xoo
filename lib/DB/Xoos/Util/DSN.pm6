@@ -56,7 +56,7 @@ sub parse-dsn (Str:D $dsn) is export {
   {
     driver => $parsed<driver>.Str,
     user   => $parsed<auth> ?? $parsed<auth><user>.Str !! Nil,
-    pass   => $parsed<auth> ?? $parsed<auth><pass>.Str !! Nil,
+    pass   => $parsed<auth>[0] ?? $parsed<auth>[0].Str.substr(1) !! Nil,
     host   => $parsed<host>.Str,
     port   => $parsed<port> && $parsed<port><num> ?? $parsed<port><num>.Int !! default-ports(($parsed<driver>//'').Str),
     db     => $parsed<db-name> && $parsed<db-name><db> ?? $parsed<db-name><db>.Str !! Nil,
