@@ -11,6 +11,8 @@ my @strs = (
   'pg://john:do@e:@127.0.0.1:8080/db',
   'oracle://typo/db',
   'mysql:///socket_db',
+  'mysql://user@localhost/db',
+  'mysql://user:@localhost/db',
 );
 
 plan @strs.elems;
@@ -25,6 +27,8 @@ my @exp = (
   Nil|Any,
   { driver => 'oracle', user => Nil,    pass => Nil,    host => 'typo',        port => Nil,  db => 'db',        },
   { driver => 'mysql',  user => Nil,    pass => Nil,    host => '',            port => 3306, db => 'socket_db', },
+  { driver => 'mysql',  user => 'user', pass => '',     host => 'localhost',   port => 3306, db => 'db',        },
+  { driver => 'mysql',  user => 'user', pass => '',     host => 'localhost',   port => 3306, db => 'db',        },
 );
 
 for 0..@strs.elems-1 -> $x {

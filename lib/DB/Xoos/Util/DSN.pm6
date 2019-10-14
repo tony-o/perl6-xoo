@@ -1,5 +1,6 @@
 unit module DB::Xoos::DSN;
 
+#use Grammar::Tracer::Compact;
 grammar dsn {
   token TOP {
     ^
@@ -12,11 +13,14 @@ grammar dsn {
   }
 
   token auth {
-    <user> (':' <pass>) ** 0..1 '@'
+    <user> (
+      | ':' <pass> ** 0..1
+      | ':' ** 0..1
+    ) '@'
   }
 
   token user {
-    <-[:]>+
+    <-[:@]>+
   }
 
   regex pass {
@@ -56,7 +60,7 @@ sub parse-dsn (Str:D $dsn) is export {
   {
     driver => $parsed<driver>.Str,
     user   => $parsed<auth> ?? $parsed<auth><user>.Str !! Nil,
-    pass   => $parsed<auth>[0] ?? $parsed<auth>[0].Str.substr(1) !! Nil,
+    pass   => $parsed<auth>[0] ?? ($parsed<auth>[0].Str||' ').substr(1) !! Nil,
     host   => $parsed<host>.Str,
     port   => $parsed<port> && $parsed<port><num> ?? $parsed<port><num>.Int !! default-ports(($parsed<driver>//'').Str),
     db     => $parsed<db-name> && $parsed<db-name><db> ?? $parsed<db-name><db>.Str !! Nil,

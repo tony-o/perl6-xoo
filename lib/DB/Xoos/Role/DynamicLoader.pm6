@@ -24,7 +24,6 @@ method !from-structure($mod) {
     $row-class = ::($mod<row-class>.Str); 
     $row-class does DB::Xoos::Role::Row
       unless $row-class ~~ DB::Xoos::Role::Row;
-    say 'does';
     @model-attributes.push($row-class);
   };
 
@@ -56,7 +55,7 @@ method !from-structure($mod) {
     }) !! () ]
   );
   die 'Model must provide .columns' unless $model.^can('columns');
-  $model.set-db(db => self.db) if self.^can('db');
+  $model.set-db(db => self.db);
   $model.set-row-class($row-class.new(:model($model)));
 
   self!set-cache($name, $model, :overwrite);
@@ -81,11 +80,20 @@ method load-models(@model-dirs?, :%dynamic?) {
     $mod-name .=subst(/(\/|\\)/, '::', :g);
     try {
       CATCH { default {
-        warn "Error loading: $mod-name\n" ~ $_.Str;
+        warn "Error loading: $mod-name";#\n{$_.gist}";
       } }
       require ::($mod-name);
       next unless ::($mod-name) ~~ DB::Xoos::Role::Model;
-      self!set-cache($mod-name.split('::')[*-1], ::($mod-name).new)
+      my $model = ::($mod-name).new(:db(self.db));
+
+      unless $model.row {
+        my $row-class = Metamodel::ClassHOW.new_type(:name("{self.^can('prefix') && self.prefix ne '' ?? "{self.prefix}\:\:" !! ""}Row::{$mod-name.split('::')[*-1]}"));
+        $row-class.^add_role(DB::Xoos::Role::Row);
+        $row-class.HOW.compose($row-class);
+        $model.set-row-class($row-class.new(:model($model)));
+      }
+
+      self!set-cache($mod-name.split('::')[*-1], $model);
     }
   }
   if @model-dirs.elems {

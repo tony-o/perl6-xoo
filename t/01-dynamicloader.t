@@ -10,6 +10,7 @@ subtest {
   my class TestDL does DB::Xoos::Role::DynamicLoader {
     multi method connect(Any:D :$db, :%options?, *%_) { '' }
     multi method connect(Str:D $dsn, :%options?, *%_) { '' }
+    method db { 'x'; }
     method test1 {
       my $model = self!from-structure({
         name => 'test1',
