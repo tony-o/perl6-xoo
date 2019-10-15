@@ -8,7 +8,7 @@ has @!columns;
 has @!relations;
 has $!db;
 
-multi submethod BUILD(:$!model, :%field-data, :%!field-changes?, :$!is-dirty = True, :$!db) {
+multi submethod BUILD(:$!model, :%field-data, :%!field-changes?, :$!is-dirty = True, :$!db, *%_) {
   @!columns = |$!model.columns if $!model.^can('columns');
   my %fd    = (%field-data//{}).clone;
   for @!columns -> $col {
@@ -85,4 +85,3 @@ method columns {@!columns;}
 method field-changes {%!field-changes;}
 method field-data {%!field-data;}
 method is-dirty(Bool $!is-dirty = $!is-dirty) {$!is-dirty;}
-

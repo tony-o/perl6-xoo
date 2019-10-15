@@ -13,7 +13,7 @@ submethod TWEAK(|) {
 
 method table-name { $table-name; }
 
-method row {
+multi method row {
   $!row ?? $!row !! Nil;
 }
 

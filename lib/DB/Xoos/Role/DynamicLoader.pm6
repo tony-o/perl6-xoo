@@ -3,6 +3,9 @@ use DB::Xoos::Role::Row;
 use DB::Xoos::Role::Cache;
 unit role DB::Xoos::Role::DynamicLoader does DB::Xoos::Role::Cache;
 
+method !param-row { self.^can('parameterized-row') ?? self.parameterized-row !! DB::Xoos::Role::Row; }
+method !param-model { self.^can('parameterized-model') ?? self.parameterized-model !! DB::Xoos::Role::Model; }
+
 method !from-structure($mod) {
   my $name = $mod<name>//$mod<table>;
   my @model-attributes;
@@ -14,7 +17,7 @@ method !from-structure($mod) {
     CATCH {
       default {
         $row-class = Metamodel::ClassHOW.new_type(:name("{self.^can('prefix') ?? "{self.prefix}\:\:" !! ""}Row::{$name.tc}"));
-        $row-class.^add_role(DB::Xoos::Role::Row);
+        $row-class.^add_role(self!param-row);
         $row-class.HOW.compose($row-class);
         @model-attributes.push($row-class);
       }
@@ -22,8 +25,8 @@ method !from-structure($mod) {
     die '' unless $mod<row-class>;
     require ::($mod<row-class>.Str);
     $row-class = ::($mod<row-class>.Str); 
-    $row-class does DB::Xoos::Role::Row
-      unless $row-class ~~ DB::Xoos::Role::Row;
+    $row-class does self!param-row
+      unless $row-class ~~ self!param-row;
     @model-attributes.push($row-class);
   };
 
@@ -35,16 +38,18 @@ method !from-structure($mod) {
     }
   }
   $model-class //= Metamodel::ClassHOW.new_type(:name('DB::Xoos::Model::'~$name));
-  $model-class.^add_role(DB::Xoos::Role::Model[|@model-attributes])
-    if $model-class !~~ DB::Xoos::Role::Model;
-  $model-class.HOW.add_attribute($model-class, Attribute.new(
+  my $role = self!param-model;
+  $role = $role.^parameterize(|@model-attributes);
+  $model-class.^add_role($role)
+    unless $model-class ~~ $role;
+  $model-class.^add_attribute(Attribute.new(
     :name<@.columns>, :has_accessor(1), :type(Array), :package($model-class.WHAT),
   ));
-  $model-class.HOW.add_attribute($model-class, Attribute.new(
+  $model-class.^add_attribute(Attribute.new(
     :name<@.relations>, :has_accessor(1), :type(Array), :package($model-class.WHAT),
   ));
 
-  $model-class.HOW.compose($model-class);
+  $model-class.^compose;
   
   my $model = $model-class.new(
     columns => [ $mod<columns>.defined ?? $mod<columns>.keys.map({
@@ -80,17 +85,19 @@ method load-models(@model-dirs?, :%dynamic?) {
     $mod-name .=subst(/(\/|\\)/, '::', :g);
     try {
       CATCH { default {
-        warn "Error loading: $mod-name";#\n{$_.gist}";
+        warn "Error loading: $mod-name\n{$_.gist}";
       } }
       require ::($mod-name);
-      next unless ::($mod-name) ~~ DB::Xoos::Role::Model;
+      next unless ::($mod-name) ~~ self!param-model;
       my $model = ::($mod-name).new(:db(self.db));
 
-      unless $model.row {
+      if !$model.row {
         my $row-class = Metamodel::ClassHOW.new_type(:name("{self.^can('prefix') && self.prefix ne '' ?? "{self.prefix}\:\:" !! ""}Row::{$mod-name.split('::')[*-1]}"));
-        $row-class.^add_role(DB::Xoos::Role::Row);
+        $row-class.^add_role(self!param-row);
         $row-class.HOW.compose($row-class);
         $model.set-row-class($row-class.new(:model($model)));
+      } else {
+        $model.set-row-class($model.row.new(:model($model)));
       }
 
       self!set-cache($mod-name.split('::')[*-1], $model);

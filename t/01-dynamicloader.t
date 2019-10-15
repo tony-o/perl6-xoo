@@ -58,10 +58,11 @@ subtest {
   ok $test.loaded-models.elems == 1, 'loaded M1';
   ok $test.model('M1').XX == 42, 'XX callable on model';
   ok $test.model('M1').row.^name eq 'Row::M1', 'Loaded correct row class (GOT:'~$test.model('M1').row.^name~')';
+  ok $test.model('M1').row.model.^name eq 'Model::M1', 'Row has correct model class (GOT:'~$test.model('M1').row.model.^name~')';
   ok $test.model('M1').row.XX == 42, 'Row can access model';
   is $test.model('M1').db, 'test', 'Test model gets correct db';
   $test.model('R1');
-  ok $test.model('R1').row.^name ~~ /'anon'/, 'R1 has anonymous class';
+  ok $test.model('R1').row.^name ~~ /'Row::R1'/, 'R1 has anonymous but sane name';
   ok $test.loaded-models.elems == 2, 'R1 & M1 still cached';
 }, 'Dynamic loader with files';
 
