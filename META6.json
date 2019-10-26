@@ -13,6 +13,7 @@
     "DB::Xoos::DSN": "lib/DB/Xoos/DSN.pm6",
     "DB::Xoos::Model": "lib/DB/Xoos/Model.pm6",
     "DB::Xoos::Row": "lib/DB/Xoos/Row.pm6",
+    "DB::Xoos::RowInflator": "lib/DB/Xoos/RowInflator.pm6",
     "DB::Xoos::SQL": "lib/DB/Xoos/SQL.pm6",
     "DB::Xoos::Result": "lib/DB/Xoos/Result.pm6"
   },

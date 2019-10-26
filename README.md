@@ -2,26 +2,11 @@
 
 Xoos is an ORM designed for convenience and ease of use, it is modeled after DBIx::\* if you're into that kind of thing already (note: some concepts and names have deviated).
 
-(This module was originally named Koos until my friends in Israel let me know that that's a vulgar word in Arabic)
-
 [![CircleCI](https://circleci.com/gh/tony-o/perl6-xoo.svg?style=svg)](https://circleci.com/gh/tony-o/perl6-xoo)
 
-## what works
+Please note: this is a base class for the following backends -
 
-* relationships
-* row object inflation (calling .first on a query returns a Xoos::Row)
-* row objects inherit from the model::@columns
-* model level convenience methods
-* row level convenience methods
-* basic handling compounded primary keys
-* column validation hooks
-* YAML models (auto composed)
-* decouple SQL generation from Xoos::Searchable (this includes decoupling the SQL generation from the DB layer) - DB::Pg is intended to be used but epoll is not ported to OSX
-* dynamic model loading (Pg)
-
-## todo
-
-* prefetch relationships option (currently everything is prefetched)
+- [DB::Xoos::Pg](https://github.com/tony-o/p6-db-xoos-pg)
 
 # Usage
 
@@ -242,11 +227,11 @@ $single-customer.remove-closed-orders;
 # this removes all orders for customers with id = 5
 ```
 
-# role Xoos::Row
+# role DB::Xoos::Row
 
 A role to apply to your `::Row::Customer`.  If there is no `::Row::Customer` a generic row is created using the column and relationship data specified in the corresponding `Model` and this file is only really necessary if you want to add convenience methods.
 
-When a `class :: does Xoos::Row`, it receives the info from the model and adds the methods for setting/getting field data.
+When a `class :: does DB::Xoos::Row`, it receives the info from the model and adds the methods for setting/getting field data.
 
 With the model definition above:
 
