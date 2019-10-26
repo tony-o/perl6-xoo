@@ -23,7 +23,32 @@ multi method connect(Any:D :$db, :%options = { }) {
   $!db     = $db;
   $!driver = %options<db-params><driver> // $db.^name;
   $!prefix = %options<prefix> // '';
-  self.load-models(%options<model-dirs>//[]);
+
+  my %dynamic;
+  if %options<dynamic> {
+    try {
+      CATCH { default {
+        warn 'Failure loading models dynamically: ' ~ $_.message(3);
+      } }
+      my ($failure, $req);
+      my @try = "DB::Xoos::{$!driver}::Util::Dynamic", "DB::Xoos::{$!driver}::Dynamic";
+      for @try -> $try {
+        $failure = (try require ::($try)) === Nil;
+        if !$failure {
+          $req = $try;
+          last;
+        }
+      }
+      if $failure {
+        warn 'Failed to load (' ~ @try.join(', ') ~ ') but :dynamic provided';
+      } else {
+        require ::($req);
+        %dynamic = ::("{$req}::EXPORT::DEFAULT::&generate-structure").(:db-conn($db));
+      }
+    };
+  }
+
+  self.load-models(%options<model-dirs>//[], :%dynamic);
 }
 
 multi method connect(Str:D $dsn, :%options = { }) {
@@ -45,11 +70,13 @@ method !from-structure($mod) {
   my $name = $mod<name>//$mod<table>;
   my $row-class = $mod<row-class> // "{$!prefix}::Row::{$mod<name>//$mod<table>.ucfirst}";
 
-  my $new-model := Metamodel::ClassHOW.new_type(:name('DB::Xoos::Model::'~$name));
-  $new-model.HOW.add_attribute($new-model, Attribute.new(
+  my $new-model := %!cache{$name}.defined
+    ?? Metamodel::ParametricRoleHOW.new_type(:name('DB::Xoos::Model::'~$name))
+    !! Metamodel::ClassHOW.new_type(:name('DB::Xoos::Model::'~$name));
+  $new-model.^add_attribute(Attribute.new(
     :name<@.columns>, :has_accessor(1), :type(Array), :package($new-model.WHAT),
   ));
-  $new-model.HOW.add_attribute($new-model, Attribute.new(
+  $new-model.^add_attribute(Attribute.new(
     :name<@.relations>, :has_accessor(1), :type(Array), :package($new-model.WHAT),
   ));
 
@@ -60,10 +87,16 @@ method !from-structure($mod) {
   };
 
   $new-model.^add_role(DB::Xoos::Model[|@role-attr]);
-  $new-model.HOW.compose($new-model);
+  $new-model.^compose;
   my @columns   = [ $mod<columns>.keys.map({ $_ => $mod<columns>{$_} }) ];
   my @relations = [ $mod<relations>.keys.map({ $_ => $mod<relations>{$_} }) ];
-  %!cache{$name} = $new-model.new(driver => $!driver, :$!prefix, db => $!db, dbo => self, :@columns, :@relations);
+  if %!cache{$name}.defined {
+    %!cache{$name}.^add_role($new-model);
+    %!cache{$name}.columns = @columns;
+    %!cache{$name}.relations = @relations;
+  } else {
+    %!cache{$name} = $new-model.new(driver => $!driver, :$!prefix, db => $!db, dbo => self, :@columns, :@relations);
+  }
 }
 
 method load-models(@model-dirs?, :%dynamic?) {
