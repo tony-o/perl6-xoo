@@ -1,6 +1,7 @@
 use DB::Xoos::Result;
 use DB::Xoos::RowInflator;
-unit role DB::Xoos::D::Result does DB::Xoos::Result does DB::Xoos::RowInflator;
+use DB::Xoos::SQL;
+unit role DB::Xoos::D::Result does DB::Xoos::Result does DB::Xoos::SQL does DB::Xoos::RowInflator;
 
 has $!first-next;
 

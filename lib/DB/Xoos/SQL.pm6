@@ -1,10 +1,4 @@
-unit role DB::Xoos::SQL;
-
-has $.quote;
-
-submethod BUILD(:%quote) {
-  $!quote = %({ :identifier<`>, :value<">, :placeholder<?> }, %quote);
-}
+unit role DB::Xoos::SQL[$quote = { :identifier<`>, :value<">, :placeholder<?> }];
 
 method sql-select(%filter?, %options?) {
   self!sql(:%filter, :%options);
@@ -43,9 +37,9 @@ method !sql($page-start?, $page-size?, :$field-override = Nil, :$update = False,
     $sql ~= self!gen-table(:for-update);
     $sql ~= ' ('~self!gen-field-ins(%update-values)~') ';
     $sql ~= 'VALUES (' ~ (
-      ($!quote<placeholder>//'?') eq '$'
+      ($quote<placeholder>//'?') eq '$'
         ?? (1..@*params.elems).map({ '$' ~ $_ }).join(', ')
-        !! (($!quote<placeholder>//'?') x @*params.elems).split('', :skip-empty).join(', ')
+        !! (($quote<placeholder>//'?') x @*params.elems).split('', :skip-empty).join(', ')
     ) ~ ')';
   } else {
     $sql = 'SELECT ';
@@ -100,7 +94,7 @@ method !gen-quote(\val, $force = False, :$table) {
 }
 
 method !placeholder {
-  my $ph = $!quote<placeholder> // '?';
+  my $ph = $quote<placeholder> // '?';
   if $ph eq '$' {
     return '$' ~ @*params.elems;
   }
@@ -108,8 +102,8 @@ method !placeholder {
 }
 
 method !gen-id($value,:$table?) {
-  my $qc = MY::<$!quote><identifier> // '"';
-  my $sc = MY::<$!quote><separator>  // '.';
+  my $qc = MY::<$quote><identifier> // '"';
+  my $sc = MY::<$quote><separator>  // '.';
   my @s  = $value.split($sc);
   @s.prepend($table)
     if $table.defined && $table ne '' && @s.elems == 1;

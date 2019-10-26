@@ -52,7 +52,7 @@ is-deeply $sq<params>.sort, [1, 500, 400, 5, 8, 6].sort, 'should be 5 params [1,
 $sq = $d;
 ok $sq<sql> eq 'SELECT * FROM "dummy" as self ORDER BY a DESC, b ASC', "order-by in options affects sql";
 
-$s = DB::Xoos::SQL.new(quote => (:placeholder<$>));
+$s = class :: does DB::Xoos::SQL[{ :placeholder<$> }] { }.new;
 $sq = $s.sql-select('a' => 1);
 ok $sq<sql> eq 'SELECT * FROM "dummy" as self WHERE "self"."a" = $1', '$ placeholder is OK';
 ok $sq<params> == 1, 'and param is correct';

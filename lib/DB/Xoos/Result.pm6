@@ -1,5 +1,5 @@
-use DB::Xoos::SQL;
-unit role DB::Xoos::Result does DB::Xoos::SQL;
+#use DB::Xoos::SQL;
+unit role DB::Xoos::Result;# does DB::Xoos::SQL;
 
 has Bool $!inflate = True;
 has %!options = {};
