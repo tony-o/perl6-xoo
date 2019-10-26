@@ -1,20 +1,24 @@
 unit module Xoos::Test;
 use DB::SQLite;
+use DB::Xoos;
 
 END {
   try { 'test.sqlite3'.IO.unlink; };
 }
 
+state $DB;
 sub get-sqlite is export {
-  my $db = DB::SQLite.new(:filename<test.sqlite3>);
-  $db.connect;
+  state $db = DB::Xoos.new(
+    db      => $DB,
+    options => { prefix => 'X', db-params => { driver => 'D' } },
+  );
   $db;
 }
 
-sub configure-sqlite is export {
+sub configure-sqlite($FN?) is export {
   #hello table + data:
-  my $db = DB::SQLite.new(:filename<test.sqlite3>);
-  $db.connect;
+  $DB = DB::SQLite.new(:filename($FN//'test.sqlite3'));
+  my $db = $DB;
 
   $db.execute(q:to/XYZ/);
   DROP TABLE IF EXISTS hello;

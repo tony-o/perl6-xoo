@@ -1,6 +1,6 @@
-use DB::Xoos::Searchable;
+use DB::Xoos::Result;
 use DB::Xoos::Row;
-unit role DB::Xoos::Model[Str $table-name, Str $row-class?] does DB::Xoos::Searchable;
+unit role DB::Xoos::Model[Str $table-name, Str $row-class?] does DB::Xoos::Result;
 
 has $!table-name;
 has $!db;
@@ -14,12 +14,12 @@ sub anon-row {
   $cx;
 }
 
-multi submethod BUILD (:$!driver, :$!db, :$!dbo, :@columns?, :@relations?) {
+multi submethod TWEAK (:$!driver, :$!db, :$!dbo, :@columns = self.columns, :@relations?) {
   CATCH { default { .say; } }
   if @columns {
     try {
       CATCH { die '@columns supplied to model but unable to bind: '~$_; };
-      my $attr = self.^attributes.first: { $_.Str eq '@.columns' };
+      my $attr = self.^attributes.first: { $_.Str eq ('@.columns'|'@!columns') };
       die '@columns supplied but no attribute in model' unless $attr;
       $attr.set_value(self, @columns);
     };
@@ -27,7 +27,13 @@ multi submethod BUILD (:$!driver, :$!db, :$!dbo, :@columns?, :@relations?) {
   if @relations {
     try {
       CATCH { die '@columns supplied to model but unable to bind: '~$_; };
-      my $attr = self.^attributes.first: { $_.Str eq '@.relations' };
+      my $attr = self.^attributes.first: { $_.Str eq ('@!relations'|'@.relations') };
+      unless $attr {
+        self.^add_attribute(Attribute.new(
+          :name<@.relations>, :has_accessor(1), :type(Array), :package(self.WHAT),
+        ));
+        $attr = self.^attributes.first: { $_.Str eq ('@.relations'|'@!relations') };
+      }
       die '@relations supplied but no attribute in model' unless $attr;
       $attr.set_value(self, @relations);
     };
@@ -58,7 +64,6 @@ multi submethod BUILD (:$!driver, :$!db, :$!dbo, :@columns?, :@relations?) {
       $!row-class = ::("$r-str") // anon-row;
     }
   }
-
   callsame;
 #  callwith(:driver($!driver));
 }

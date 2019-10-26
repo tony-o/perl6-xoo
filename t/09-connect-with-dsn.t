@@ -2,27 +2,22 @@
 
 use lib 'lib';
 use lib 't/lib';
-use DB::Xoos::SQLite;
+use DB::Xoos;
+use DB::Xoos::DSN;
 use Test;
-use DB::Xoos::Test;
-use DBIish;
-use X::Model::Order;
 
 plan 2;
-
-configure-sqlite;
 
 my $cwd = $*CWD;
 $*CWD = 't'.IO;
 
-my DB::Xoos::SQLite $d .=new;
-
-$d.connect('sqlite://test.sqlite3', :options({ :prefix<X> }));
+my DB::Xoos $d .=new(
+  :dsn('d://test.sqlite3'),
+  :options({ :prefix<X> })
+);
 
 ok True, 'connected to test.sqlite3 OK';
 
-my $customers = $d.model('Customer');
-
-ok $customers.count.defined, 'can count(*) from customers table';
+is $d.loaded-models.elems, 4, 'loaded all of the test models fine';
 
 $*CWD = $cwd;

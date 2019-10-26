@@ -2,24 +2,20 @@
 
 use lib 'lib';
 use lib 't/lib';
-use DB::Xoos::SQLite;
 use Test;
 use DB::Xoos::Test;
 use DB::SQLite;
 
 plan 6;
 
+try 'test.sqlite3'.IO.unlink;
 configure-sqlite;
 
 my $cwd = $*CWD;
 $*CWD = 't'.IO;
 
-my DB::Xoos::SQLite $d .=new;
-my $db     = get-sqlite;
-
-$d.connect(:$db, :options({
-  prefix => 'X',
-}));
+my $d  = get-sqlite;
+my $db = $d.db;
 
 my ($sth, $scratch);
 my $customers = $d.model('Customer');
@@ -47,11 +43,11 @@ ok $c.open_orders.count == 2, 'should have 2 open orders after inserts';
 $c.orders.close;
 ok $c.open_orders.count == 0, 'should have 0 open orders after &X::Model::Order::close';
 
-my $first = $c.orders.all[0];
-my $expc  = $c.orders.count+1;
+my $first = $c.orders.first;
 my $copy  = $first.reopen-duplicate;
+my $expc   = $db.query('select id from `order` where status = \'open\'').hashes[0]<id>;
 
-ok $first.id//-2 != $copy.id//-1, "duplicated order should have different id ({$first.id} vs {$copy.id//-1})";
-ok $expc == $copy.id//-1, "duplicated order should have .id = $expc { ($copy.id//-1) != $expc ?? "(GOT: {$copy.id//-1})" !! ''}";
+isnt $first.id//-2, $copy.id//-1, "duplicated order should have different id";
+is $copy.id//-1, $expc, "duplicated order should have .id = $expc";
 
 $*CWD = $cwd;

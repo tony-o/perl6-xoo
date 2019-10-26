@@ -1,26 +1,19 @@
 #!/usr/bin/env perl6
 
-use lib 'lib';
 use lib 't/lib';
-use DB::Xoos::SQLite;
 use Test;
 use DB::Xoos::Test;
 use DB::SQLite;
 
-plan 14;
+plan 16;
 
 configure-sqlite;
 
 my $cwd = $*CWD;
 $*CWD = 't'.IO;
 
-my DB::Xoos::SQLite $d .=new;
-my $db     = DB::SQLite.new(filename => 'test.sqlite3');
-$db.connect;
-
-$d.connect(:$db, :options({
-  prefix => 'X',
-}));
+my $d  = get-sqlite;
+my $db = $d.db;
 
 my ($sth, @raw, $scratch);
 my $hello = $d.model('Hello');
@@ -36,7 +29,7 @@ select * from hello where txt <> 'hello world';
 SSS
 @raw  = $sth.hashes;
 
-ok @rows.elems == @raw.elems, 'ORM should return same number of rows as artisinal handcrafted query';
+is @rows.elems, @raw.elems, 'ORM should return same number of rows as artisinal handcrafted query';
 $scratch = 0;
 for @rows -> $r {
   $scratch += @raw.grep({ $_<id> eq $r.id && $_<txt> eq $r.txt }).elems ?? 1 !! 0;
@@ -66,7 +59,7 @@ $cnt = $hello.search({ txt => { 'not like' => '% %' }}).count;
 ok $cnt == 0, 'not like "% %" should be 0 after delete';
 
 $hello.search({ txt => { 'not like' => '% %' }}).update({ txt => 'abc' });
-@rows = $hello.search.all;
+@rows = $hello.all;
 $cnt  = { 'hello world' => 0, 'abc' => 0 };
 for @rows {
   $cnt{$_.txt}++;
@@ -76,4 +69,12 @@ ok $cnt{'hello world'} == 1, 'did not update the only row containing a space';
 ok $cnt<abc> == @rows.elems - 1, 'updated all rows not containing a space';
 
 
+$hello.insert({ txt => 'hey bucko' });
+$hello = $d.model('Hello').search({ id => { '>' => -1 }});
+
+isnt $hello.first.id, $hello.next.id, '.first and .next dont return same result';
+is $hello.next, Nil, '.next should return Nil when no more data available';
+
 $*CWD = $cwd;
+
+# vi:syntax=perl6

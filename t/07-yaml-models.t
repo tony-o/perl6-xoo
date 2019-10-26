@@ -2,10 +2,8 @@
 
 use lib 'lib';
 use lib 't/lib';
-use DB::Xoos::SQLite;
 use Test;
 use DB::Xoos::Test;
-use DBIish;
 
 my $no-yaml = (try require ::('YAML::Parser::LibYAML')) === Nil;
 
@@ -21,12 +19,8 @@ configure-sqlite;
 my $cwd = $*CWD;
 $*CWD = 't'.IO;
 
-my DB::Xoos::SQLite $d .=new;
-my $db     = get-sqlite;
-
-$d.connect(:$db, :options({
-  model-dirs => [qw<models>],
-}));
+my $d  = get-sqlite;
+my $db = $d.db;
 
 my ($sth, $scratch);
 my $customers = $d.model('Customer');

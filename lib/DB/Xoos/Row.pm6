@@ -140,13 +140,8 @@ method update {
       my $new-id = $!model.insert(%field-data);
       my $key    = @keys.grep({ $_.value<auto-increment>//False })[0].key // Nil;
       if $!driver eq 'SQLite' && @keys.grep({ $_.value<auto-increment>//False }) {
-        if $!db.^can('prepare') {
-          $new-id = $!db.prepare('select last_insert_rowid() as nid;');
-          $new-id.execute;
-          $new-id = $new-id.row(:hash)<nid>;
-        } else {
-          $new-id = $!db.query('select last_insert_rowid() as nid;').hash<nid>;
-        }
+        $new-id = $!db.query('select last_insert_rowid() as nid;').hash<nid>
+          unless $new-id ~~ Int;
       } elsif $!driver eq 'Pg' && $key {
         my %params = @!columns.grep({
           $_.value<unique> && !$_.value<is-primary-key>

@@ -2,10 +2,8 @@
 
 use lib 'lib';
 use lib 't/lib';
-use DB::Xoos::SQLite;
 use Test;
 use DB::Xoos::Test;
-use DB::SQLite;
 use X::Model::Order;
 
 plan 6;
@@ -15,12 +13,8 @@ configure-sqlite;
 my $cwd = $*CWD;
 $*CWD = 't'.IO;
 
-my DB::Xoos::SQLite $d .=new;
-my $db     = get-sqlite;
-
-$d.connect(:$db, :options({
-  prefix => 'X',
-}));
+my $d  = get-sqlite;
+my $db = $d.db;
 
 my ($sth, $scratch);
 my $customers = $d.model('Customer');

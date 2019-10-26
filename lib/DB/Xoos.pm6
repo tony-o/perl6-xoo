@@ -1,16 +1,45 @@
 unit role DB::Xoos;
 
 use DB::Xoos::Model;
+use DB::Xoos::DSN;
 
 has $!db;
 has $!driver;
 has %!cache;
 has $!connected;
 has $!prefix;
+has $!dsn;
+has %!options;
 
-multi method connect(Any:D: :$db, :%options) { ... }
+submethod BUILD(:$!db?, :$!dsn?, :%!options = { }) {
+  if $!dsn.defined {
+    self.connect($!dsn, :%!options);
+  } elsif $!db.defined {
+    self.connect(:$!db, :%!options);
+  }
+}
 
-multi method connect(Str:D $dsn, :%options) { ... }
+multi method connect(Any:D :$db, :%options = { }) {
+  $!db     = $db;
+  $!driver = %options<db-params><driver> // $db.^name;
+  $!prefix = %options<prefix> // '';
+  self.load-models(%options<model-dirs>//[]);
+}
+
+multi method connect(Str:D $dsn, :%options = { }) {
+  my %connect-params = parse-dsn($dsn);  
+  die 'Unable to parse DSN ' ~ $dsn unless %connect-params.elems;
+  
+  my $handler    = "DB::Xoos::{%connect-params<driver>.tc}";
+  my $sub-module = (try require ::($handler)) === Nil;
+  die "Unable to find connection handler: $handler, perhaps you need to install it?"
+    if $sub-module;
+  require ::($handler);
+  
+  my $db = ::($handler).get-db(%connect-params, :%options);
+  %options = ( :db-params( %( %connect-params, driver => %connect-params<driver>.tc )), %options );
+  self.connect(:$db, :%options);
+}
 
 method !from-structure($mod) {
   my $name = $mod<name>//$mod<table>;
@@ -56,7 +85,7 @@ method load-models(@model-dirs?, :%dynamic?) {
     $mod-name .=subst(/(\/|\\)/, '::', :g);
     try {
       my $m = (require ::($mod-name));
-      %!cache{$mod-name.split('::')[*-1]} = $m.new(:$!driver, :$!db, :$!prefix, dbo => self);
+      %!cache{$mod-name.split('::')[*-1]} = $m.new(:$!driver, :$!db, dbo => self);
       CATCH {
         default {
           warn "error loading $mod-name\n" ~ $_.Str;
@@ -96,7 +125,7 @@ method model(Str $model-name, Str :$module?) {
   }
   try { 
     my $m = (require ::("$model"));
-    %!cache{$model-name} = $m.new(:$!db, :$prefix, :$model-name, dbo => self);
+    %!cache{$model-name} = $m.new(:$!db, :$prefix, :$model-name, dbo => self, driver => $!driver);
     CATCH { default {
       say "Failed to load $model-name ($model): {$_}";
     } }
