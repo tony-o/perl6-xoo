@@ -1,5 +1,12 @@
 unit role DB::Xoos::SQL[$quote = { :identifier<`>, :value<">, :placeholder<?> }];
 
+my $colorizor = (try require Terminal::ANSIColor) === Nil
+  && {''} || ::('Terminal::ANSIColor::EXPORT::DEFAULT::&color');
+
+my sub color(Str:D $color, Str:D $msg) {
+  return $colorizor($color) ~ $msg ~ $colorizor('reset');
+}
+
 method sql-select(%filter?, %options?) {
   self!sql(:%filter, :%options);
 }
@@ -52,6 +59,11 @@ method !sql($page-start?, $page-size?, :$field-override = Nil, :$update = False,
     $sql   ~= self!gen-joins(:%options);
     $sql   ~= self!gen-filters(:%filter) if %filter.keys;
     $sql   ~= self!gen-order(:%options) if %options.keys;
+  }
+
+  if (%*ENV<XOOS_DEBUG_SQL>//False) {
+    say color('bold white', '==>    sql: ') ~ color('green', $sql);
+    say color('bold white', '=>> params: ') ~ color('blue', @*params.gist);
   }
 
   { sql => $sql, params => @*params };
