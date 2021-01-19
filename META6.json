@@ -3,7 +3,7 @@
   "version"     : "0.1.1",
   "perl"        : "6",
   "description" : "An ORM, with support.",
-  "auth"        : "github:tony-o",
+  "auth"        : "zef:tony-o",
   "authors"     : [ "Tony O'Dell" ],
   "depends"     : [],
   "test-depends": ["DB::SQLite"],
